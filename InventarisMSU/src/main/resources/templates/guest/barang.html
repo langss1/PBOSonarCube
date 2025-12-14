@@ -104,156 +104,19 @@
 
     <!-- GRID: contoh 10 item -->
     <section class="items-grid" id="itemsGrid">
-      <!-- Item 1 -->
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
+      <div class="col reveal-up" th:each="item : ${items}">
+        <article class="item-card tap-anim" th:data-max="${item.stock}">
           <div class="item-thumb">
-            <img src="proyektor.jpeg" th:src="@{/assets/guest/proyektor.jpeg}" alt="Proyektor">
-            <span class="badge-status">Active</span>
+            <img th:src="@{'/assets/guest/' + ${item.imageUrl}}" th:alt="${item.name}">
+            <span class="badge-status" th:text="${item.status}">Active</span>
             <div class="qty-actions">
               <button class="qty-btn" data-action="inc" aria-label="Tambah sisa">−</button>
               <button class="qty-btn" data-action="dec" aria-label="Tambahkan ke keranjang">＋</button>
             </div>
           </div>
           <div class="item-body">
-            <div class="item-title">Proyektor</div>
-            <div class="item-meta">Sisa : <span class="sisa">7</span></div>
-          </div>
-        </article>
-      </div>
-
-      <!-- Sisanya -->
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="sound.jpeg" th:src="@{/assets/guest/sound.jpeg}" alt="Sound System"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Sound System</div>
-            <div class="item-meta">Sisa : <span class="sisa">5</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="terpal.jpeg" th:src="@{/assets/guest/terpal.jpeg}" alt="Terpal"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Terpal</div>
-            <div class="item-meta">Sisa : <span class="sisa">12</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="karpet.jpeg" th:src="@{/assets/guest/karpet.jpeg}" alt="Karpet"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Karpet</div>
-            <div class="item-meta">Sisa : <span class="sisa">8</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="kursi.jpeg" th:src="@{/assets/guest/kursi.jpeg}" alt="Kursi Lipat"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Kursi Lipat</div>
-            <div class="item-meta">Sisa : <span class="sisa">20</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="meja.jpeg" th:src="@{/assets/guest/meja.jpeg}" alt="Meja Lipat"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Meja Lipat</div>
-            <div class="item-meta">Sisa : <span class="sisa">10</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="mic.jpeg" th:src="@{/assets/guest/mic.jpeg}" alt="Mic Wireless"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Mic Wireless</div>
-            <div class="item-meta">Sisa : <span class="sisa">6</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="kabel.jpeg" th:src="@{/assets/guest/kabel.jpeg}" alt="Kabel Roll"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Kabel Roll</div>
-            <div class="item-meta">Sisa : <span class="sisa">9</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="tikar.jpeg" th:src="@{/assets/guest/tikar.jpeg}" alt="Tikar"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Tikar</div>
-            <div class="item-meta">Sisa : <span class="sisa">15</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img src="speaker.jpeg" th:src="@{/assets/guest/speaker.jpeg}" alt="Speaker Portable"><span
-              class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Speaker Portable</div>
-            <div class="item-meta">Sisa : <span class="sisa">4</span></div>
+            <div class="item-title" th:text="${item.name}">Nama Item</div>
+            <div class="item-meta">Sisa : <span class="sisa" th:text="${item.stock}">0</span></div>
           </div>
         </article>
       </div>

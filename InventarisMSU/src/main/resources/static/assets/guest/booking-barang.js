@@ -84,16 +84,16 @@ function fallbackThumbFor(name) {
 
 /* Booked dates berbeda per barang (contoh) */
 function getBookedDaysFor(itemName, y, m) {
-    // MAPPING CONTOH:
+    // MAPPING CONTOH: (Diset kosong dulu agar user bisa leluasa tes tanggal)
     // - Proyektor: tanggal 5,12,19
     // - Sound System: 7,14,21
     // - Karpet: 3,9,27
     const base = (itemName || '').toLowerCase();
-    if (base.includes('proyektor')) return [5, 12, 19];
-    if (base.includes('sound')) return [7, 14, 21];
-    if (base.includes('karpet')) return [3, 9, 27];
-    // default: 10 & 20
-    return [10, 20];
+    // if (base.includes('proyektor')) return [5, 12, 19];
+    // if (base.includes('sound')) return [7, 14, 21];
+    // if (base.includes('karpet')) return [3, 9, 27];
+    // default: kosong
+    return [];
 }
 
 function isToday(y, m, d) {
@@ -266,13 +266,11 @@ function buildItemPanelHTML(item) {
         <div class="text-muted small mb-3">${isRuang ? 'Fasilitas / Ruangan' : 'Barang Inventaris'}</div>
 
         <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
-           <button class="btn btn-sm btn-outline-secondary rounded-circle" 
-                   style="width:32px;height:32px"
-                   onclick="setQty('${name}', ${qty - 1})"><i class="bi bi-dash"></i></button>
-           <span class="fw-bold fs-5" style="min-width:40px">${qty}</span>
-           <button class="btn btn-sm btn-outline-secondary rounded-circle" 
-                   style="width:32px;height:32px"
-                   onclick="setQty('${name}', ${qty + 1})" ${disablePlus ? 'disabled' : ''}><i class="bi bi-plus"></i></button>
+           <button class="btn btn-sm btn-outline-secondary rounded-circle btn-qminus" 
+                   style="width:32px;height:32px"><i class="bi bi-dash"></i></button>
+           <span class="fw-bold fs-5 qty-display qty-display-text" style="min-width:40px">${qty}</span>
+           <button class="btn btn-sm btn-outline-secondary rounded-circle btn-qplus" 
+                   style="width:32px;height:32px" ${disablePlus ? 'disabled' : ''}><i class="bi bi-plus"></i></button>
         </div>
         <div class="text-muted small mb-3">
              ${isRuang ? '(Maks 1)' : `(Stok tersedia: ${effectiveMax})`}
@@ -450,14 +448,7 @@ function initPanels() {
             setQty(current + 1);
         });
 
-        minus?.addEventListener('click', () => {
-            const cur = Number(qtyBox.textContent.trim() || '0');
-            setQty(cur - 1);
-        });
-        plus?.addEventListener('click', () => {
-            const cur = Number(qtyBox.textContent.trim() || '0');
-            setQty(cur + 1);
-        });
+
     });
 
     // Saat ganti tab → sinkron blok tanggal sesuai item aktif
@@ -625,39 +616,77 @@ ${det || '-'}
 Terima kasih.
 — Masjid Syamsul Ulum`;
 
-        const mailtoURL = buildMailtoURL({
-            to: email || 'user@example.com',
-            subject,
-            body,
-            cc: MAIL_CC_ADMIN,
-            bcc: MAIL_BCC_ADMIN
-        });
 
-        // Upaya backup: salin isi email ke clipboard (jaga-jaga kalau URL mailto terlalu panjang)
-        try { await navigator.clipboard?.writeText(body); } catch (_) { }
+        /* SUBMIT VIA BACKEND API */
+        const formData = new FormData();
+        const pjName = document.getElementById('pjName');
+        const idNumber = document.getElementById('idNumber');
+        const studyProgram = document.getElementById('studyProgram');
+        const purpose = document.getElementById('purpose');
+        const longPurpose = document.getElementById('longPurpose');
+        const startTime = document.getElementById('startTime');
+        const duration = document.getElementById('duration');
+        const loanNumber = document.getElementById('loanNumber'); // Assuming loanNumber is phone
 
-        // Buka draft email di client user
-        window.open(mailtoURL, '_blank');
+        formData.append('borrowerName', pjName.value);
+        formData.append('email', email); // Use the 'email' variable directly
+        formData.append('phone', loanNumber.value);
+        formData.append('nimNip', idNumber.value);
+        formData.append('department', studyProgram.value);
+        formData.append('reason', purpose.value);
+        // Gabungkan deskripsi + jam mulai agar info waktu tidak hilang
+        formData.append('description', `[Jam Mulai: ${startTime.value}] ${longPurpose.value}`);
+        formData.append('startDate', loanDate.value);
+        formData.append('duration', duration.value);
 
-        // Bereskan UI → kosongkan keranjang & redirect ke success
-        try { MSUCart.clear(); MSUCart.renderBadge(); } catch (_) { }
-        window.location.href = 'success.html';
+        // File upload
+        const fileInput = document.getElementById('requirements');
+        if (fileInput.files.length > 0) {
+            formData.append('file', fileInput.files[0]);
+        }
+
+        // Cart items
+        const items = MSUCart.get();
+        formData.append('items', JSON.stringify(items));
+
+        const originalText = btnSubmit.innerHTML;
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
+
+        fetch('/api/peminjaman', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (response.ok) {
+                    MSUCart.clear();
+                    window.location.href = '/success';
+                } else {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Gagal menyimpan booking: ' + err.message);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalText;
+            });
     });
 
-    // Load meta booking (tanggal, jam, durasi) dari localStorage
+    // Load meta booking (tanggal, jam, durasi) dari localStorage (std: msu_dates_v1)
     try {
-        const meta = JSON.parse(localStorage.getItem('msu_booking_meta') || '{}');
-        if (meta.tanggal) {
+        const meta = JSON.parse(localStorage.getItem('msu_dates_v1') || '{}');
+        if (meta.start) {
             const el = document.getElementById('loanDate');
-            if (el) el.value = meta.tanggal;
+            if (el) el.value = meta.start;
         }
-        if (meta.mulai) {
+        if (meta.time) {
             const el = document.getElementById('startTime');
-            if (el) el.value = meta.mulai;
+            if (el) el.value = meta.time;
         }
-        if (meta.durasi) {
+        if (meta.duration) {
             const el = document.getElementById('duration');
-            if (el) el.value = meta.durasi;
+            if (el) el.value = meta.duration;
         }
     } catch (e) { }
 

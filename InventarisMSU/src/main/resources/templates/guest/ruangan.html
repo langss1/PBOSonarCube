@@ -103,148 +103,19 @@
 
     <!-- GRID 5 kolom × 2 baris (contoh 10 ruang) -->
     <section class="items-grid" id="itemsGrid">
-      <!-- Item 1 -->
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
+      <div class="col reveal-up" th:each="item : ${items}">
+        <article class="item-card tap-anim" data-type="ruang" th:data-max="${item.stock}">
           <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Aula Utama">
-            <span class="badge-status">Active</span>
+            <img th:src="@{'/assets/guest/' + ${item.imageUrl}}" th:alt="${item.name}">
+            <span class="badge-status" th:text="${item.status}">Active</span>
             <div class="qty-actions">
               <button class="qty-btn" data-action="inc" aria-label="Batalkan pilih">−</button>
               <button class="qty-btn" data-action="dec" aria-label="Pilih ruangan">＋</button>
             </div>
           </div>
           <div class="item-body">
-            <div class="item-title">Aula Utama</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <!-- 9 ruang lain -->
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Ruang Rapat A"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Ruang Rapat A</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Ruang Rapat B"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Ruang Rapat B</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Ruang Kajian"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Ruang Kajian</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Ruang Tamu"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Ruang Tamu</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <!-- baris 2 -->
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Kelas 1"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Kelas 1</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Kelas 2"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Kelas 2</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Kelas 3"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Kelas 3</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Kelas 4"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Kelas 4</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="col reveal-up">
-        <article class="item-card tap-anim">
-          <div class="item-thumb">
-            <img th:src="@{/assets/guest/plaza.jpeg}" alt="Perpustakaan"><span class="badge-status">Active</span>
-            <div class="qty-actions"><button class="qty-btn" data-action="inc">−</button><button class="qty-btn"
-                data-action="dec">＋</button></div>
-          </div>
-          <div class="item-body">
-            <div class="item-title">Perpustakaan</div>
-            <div class="item-meta">Tersedia : <span class="sisa">1</span></div>
+            <div class="item-title" th:text="${item.name}">Nama Ruang</div>
+            <div class="item-meta">Tersedia : <span class="sisa" th:text="${item.stock}">1</span></div>
           </div>
         </article>
       </div>
