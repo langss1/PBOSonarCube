@@ -6,16 +6,18 @@ public class CartItem {
     private String type; // "barang" or "ruang"
     private int quantity;
     private String imageUrl;
+    private Integer maxQty;
 
     public CartItem() {
     }
 
-    public CartItem(Long id, String name, String type, int quantity, String imageUrl) {
+    public CartItem(Long id, String name, String type, int quantity, String imageUrl, Integer maxQty) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.quantity = quantity;
         this.imageUrl = imageUrl;
+        this.maxQty = maxQty;
     }
 
     public Long getId() {
@@ -56,5 +58,13 @@ public class CartItem {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getMaxQty() {
+        return maxQty;
+    }
+
+    public void setMaxQty(Integer maxQty) {
+        this.maxQty = maxQty;
     }
 }

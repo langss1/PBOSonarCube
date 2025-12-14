@@ -51,13 +51,13 @@ function initScheduleFilter() {
   });
 
   // Load saved meta if any
-  const saved = loadBookingMeta();
-  if (saved.tanggal) {
-    dateStart.value = saved.tanggal;
-    dateEnd.value = saved.tanggal; // Assuming single day for now
+  const saved = JSON.parse(localStorage.getItem('msu_dates_v1') || '{}');
+  if (saved.start) {
+    dateStart.value = saved.start;
+    dateEnd.value = saved.end || saved.start;
   }
-  if (saved.mulai) timeStart.value = saved.mulai;
-  if (saved.durasi) duration.value = saved.durasi;
+  if (saved.time) timeStart.value = saved.time;
+  if (saved.duration) duration.value = saved.duration;
 
   // Initial state: Disable all item buttons
   toggleItemButtons(false);
@@ -78,15 +78,22 @@ function initScheduleFilter() {
     resultText.classList.remove('text-muted');
 
     // Save meta
-    saveBookingMeta({
-      tanggal: dateStart.value,
-      mulai: timeStart.value,
-      durasi: duration.value
-    });
+    const meta = {
+      start: dateStart.value,
+      end: dateEnd.value,
+      time: timeStart.value,
+      duration: duration.value
+    };
+    localStorage.setItem('msu_dates_v1', JSON.stringify(meta));
 
     // Scroll to items
     document.getElementById('itemsGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+
+  // AUTO-CHECK if data exists
+  if (dateStart.value && timeStart.value && duration.value) {
+    setTimeout(() => btnCheck.click(), 50);
+  }
 }
 
 function toggleItemButtons(enable) {
@@ -117,17 +124,42 @@ function toggleItemButtons(enable) {
 window.addEventListener('DOMContentLoaded', initScheduleFilter);
 
 // ==== Inisialisasi stok & tombol ====
+// ==== Inisialisasi stok & tombol ====
 function initCards() {
   document.querySelectorAll('.item-card').forEach(card => {
     const sisaEl = card.querySelector('.sisa');
+    const titleEl = card.querySelector('.item-title');
     if (!sisaEl) return;
-    const initial = Number(sisaEl.textContent.trim() || '0');
-    card.dataset.max = Number.isNaN(initial) ? 0 : initial;
-    sisaEl.textContent = String(initial);
-    updateBadgeAndButtons(card, initial);
+
+    // 1. Tentukan Max Stock (dari HTML server saat pertama load)
+    let max = Number(card.dataset.max);
+    if (isNaN(max) || !card.hasAttribute('data-max')) {
+      // Belum ada dataset, berarti ini load pertama/fresh
+      max = Number(sisaEl.textContent.trim() || '0');
+      if (Number.isNaN(max)) max = 0;
+      card.dataset.max = max;
+    }
+
+    // 2. Cek apakah item ini ada di keranjang local
+    let inCart = 0;
+    if (window.MSUCart) {
+      const name = titleEl ? titleEl.textContent.trim() : '';
+      const found = window.MSUCart.get().find(it => it.name === name && it.type === 'barang');
+      if (found) inCart = Number(found.quantity || 0);
+    }
+
+    // 3. Hitung sisa efektif
+    let currentSisa = max - inCart;
+    if (currentSisa < 0) currentSisa = 0;
+
+    // 4. Update UI
+    sisaEl.textContent = String(currentSisa);
+    updateBadgeAndButtons(card, currentSisa);
   });
 }
 initCards();
+// Update juga saat cart berubah (misal sync dari tab lain atau server)
+window.addEventListener('msu:cart-updated', initCards);
 
 function updateBadgeAndButtons(card, sisa) {
   const max = Number(card.dataset.max || 0);
@@ -222,10 +254,13 @@ function confirmAddNoRedirect() {
   const card = pendingCard; pendingCard = null;
 
   // simpan meta booking (biar pasti ke-save saat user mulai add)
-  const tanggal = document.getElementById('loanDateMeta')?.value || todayISO();
-  const mulai = document.getElementById('startTimeMeta')?.value || '10:00';
-  const durasi = document.getElementById('durationMeta')?.value || '2';
-  saveBookingMeta({ tanggal, mulai, durasi });
+  const meta = {
+    start: document.getElementById('filterDateStart')?.value || todayISO(),
+    end: document.getElementById('filterDateEnd')?.value || todayISO(),
+    time: document.getElementById('filterTime')?.value || '10:00',
+    duration: document.getElementById('filterDuration')?.value || '2'
+  };
+  localStorage.setItem('msu_dates_v1', JSON.stringify(meta));
 
   // Kurangi sisa 1
   const sisaEl = card.querySelector('.sisa');

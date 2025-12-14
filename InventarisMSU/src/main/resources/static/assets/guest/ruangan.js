@@ -16,19 +16,43 @@ function addTapAnimation(el) {
 document.querySelectorAll('.tap-anim').forEach(addTapAnimation);
 
 // ==== Inisialisasi setiap kartu ruang (max 1) ====
+// ==== Inisialisasi setiap kartu ruang (max 1) ====
 function initCards() {
   document.querySelectorAll('.item-card').forEach(card => {
     const sisaEl = card.querySelector('.sisa');
+    const titleEl = card.querySelector('.item-title');
     if (!sisaEl) return;
-    let initial = Number(sisaEl.textContent.trim() || '1');
-    if (Number.isNaN(initial)) initial = 1;
-    initial = Math.min(1, Math.max(0, initial));
-    card.dataset.max = 1;
-    sisaEl.textContent = String(initial);
-    updateBadgeAndButtons(card, initial);
+
+    // 1. Tentukan Max Stock (untuk ruang selalu 1 atau 0 dari server)
+    let max = Number(card.dataset.max);
+    if (isNaN(max) || !card.hasAttribute('data-max')) {
+      let val = Number(sisaEl.textContent.trim() || '1');
+      if (Number.isNaN(val)) val = 1;
+      // Clamp between 0 and 1 for rooms
+      max = Math.min(1, Math.max(0, val));
+      card.dataset.max = max;
+    }
+
+    // 2. Cek apakah item ini ada di keranjang local
+    let inCart = 0;
+    if (window.MSUCart) {
+      const name = titleEl ? titleEl.textContent.trim() : '';
+      // Note: type 'ruang'
+      const found = window.MSUCart.get().find(it => it.name === name && it.type === 'ruang');
+      if (found) inCart = Number(found.quantity || 0);
+    }
+
+    // 3. Hitung sisa efektif
+    let currentSisa = max - inCart;
+    if (currentSisa < 0) currentSisa = 0;
+
+    // 4. Update UI
+    sisaEl.textContent = String(currentSisa);
+    updateBadgeAndButtons(card, currentSisa);
   });
 }
 initCards();
+window.addEventListener('msu:cart-updated', initCards);
 
 function updateBadgeAndButtons(card, sisa) {
   const badge = card.querySelector('.badge-status');
@@ -195,13 +219,13 @@ function initScheduleFilter() {
   });
 
   // Load saved meta if any
-  const saved = loadBookingMeta();
-  if (saved.tanggal) {
-    dateStart.value = saved.tanggal;
-    dateEnd.value = saved.tanggal;
+  const saved = JSON.parse(localStorage.getItem('msu_dates_v1') || '{}');
+  if (saved.start) {
+    dateStart.value = saved.start;
+    dateEnd.value = saved.end || saved.start;
   }
-  if (saved.mulai) timeStart.value = saved.mulai;
-  if (saved.durasi) duration.value = saved.durasi;
+  if (saved.time) timeStart.value = saved.time;
+  if (saved.duration) duration.value = saved.duration;
 
   // Initial state: Disable all item buttons
   toggleItemButtons(false);
@@ -222,15 +246,23 @@ function initScheduleFilter() {
     resultText.classList.remove('text-muted');
 
     // Save meta
-    saveBookingMeta({
-      tanggal: dateStart.value,
-      mulai: timeStart.value,
-      durasi: duration.value
-    });
+    const meta = {
+      start: dateStart.value,
+      end: dateEnd.value,
+      time: timeStart.value,
+      duration: duration.value
+    };
+    localStorage.setItem('msu_dates_v1', JSON.stringify(meta));
 
     // Scroll to items
     document.getElementById('itemsGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+
+  // AUTO-CHECK if data exists
+  if (dateStart.value && timeStart.value && duration.value) {
+    // Gunakan timeout kecil agar UI stabil dulu
+    setTimeout(() => btnCheck.click(), 50);
+  }
 }
 
 function toggleItemButtons(enable) {
