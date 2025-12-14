@@ -179,4 +179,27 @@ public class Peminjaman {
     public void setDetails(List<PeminjamanDetail> details) {
         this.details = details;
     }
+
+    // Helper to extract time from description if present
+    public String getStartTime() {
+        if (description != null && description.contains("[Jam Mulai:")) {
+            try {
+                int start = description.indexOf("[Jam Mulai:") + 12; // Length of "[Jam Mulai:" is 11, plus space is 12
+                                                                     // usually
+                // But looking at "[Jam Mulai: 12:18]", len is 11. space is at 11? No.
+                // "[Jam Mulai:" len is 11. If it is "[Jam Mulai: 12:18]", index of "1" is start
+                // + 1 (space).
+                // Let's be safer.
+                String marker = "[Jam Mulai:";
+                int startIdx = description.indexOf(marker) + marker.length();
+                int endIdx = description.indexOf("]", startIdx);
+                if (endIdx > startIdx) {
+                    return description.substring(startIdx, endIdx).trim();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return "";
+    }
 }

@@ -2,7 +2,9 @@ package com.Habb.InventarisMSU.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/pengurus")
@@ -45,9 +47,10 @@ public class PengurusController {
         return "pengurus/pinjamFasilitas";
     }
 
-    @org.springframework.web.bind.annotation.PostMapping("/fasilitas/update-status")
-    public String updateStatus(@org.springframework.web.bind.annotation.RequestParam("id") Long id,
-            @org.springframework.web.bind.annotation.RequestParam("action") String action) {
+    @PostMapping("/fasilitas/update-status")
+    public String updateStatus(@RequestParam("id") Long id,
+            @RequestParam("action") String action) {
+        System.out.println("DEBUG: Received update request for ID: " + id + ", Action: " + action);
         var status = com.Habb.InventarisMSU.model.PeminjamanStatus.valueOf(action);
         // Action should be TAKEN or COMPLETED
         peminjamanService.updateStatus(id, status);
@@ -55,7 +58,15 @@ public class PengurusController {
     }
 
     @GetMapping("/riwayat")
-    public String riwayat() {
+    public String riwayat(org.springframework.ui.Model model) {
+        var all = peminjamanService.getAllPeminjaman();
+        // Filter for COMPLETED or REJECTED
+        var history = all.stream()
+                .filter(p -> p.getStatus() == com.Habb.InventarisMSU.model.PeminjamanStatus.COMPLETED ||
+                        p.getStatus() == com.Habb.InventarisMSU.model.PeminjamanStatus.REJECTED)
+                .sorted((p1, p2) -> p2.getId().compareTo(p1.getId())) // Newest first
+                .toList();
+        model.addAttribute("historyLoans", history);
         return "pengurus/riwayat";
     }
 }

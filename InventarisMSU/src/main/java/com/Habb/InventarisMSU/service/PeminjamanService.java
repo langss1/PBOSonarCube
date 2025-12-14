@@ -14,19 +14,16 @@ public class PeminjamanService {
     @Autowired
     private PeminjamanRepository peminjamanRepository;
 
-    @Autowired
-    private EmailService emailService;
+    // @Autowired
+    // private EmailService emailService;
 
     @Autowired
     private com.Habb.InventarisMSU.repository.ItemRepository itemRepository;
 
     public Peminjaman createPeminjaman(Peminjaman peminjaman) {
         Peminjaman saved = peminjamanRepository.save(peminjaman);
-        // Send email to borrower
-        emailService.sendSimpleMessage(saved.getEmail(), "Konfirmasi Peminjaman MSU",
-                "Halo " + saved.getBorrowerName() + ",\n\n" +
-                        "Permohonan peminjaman Anda telah diterima dan sedang menunggu persetujuan Pengelola.\n" +
-                        "ID Peminjaman: " + saved.getId());
+        // Email removed as per request
+        // emailService.sendSimpleMessage(...)
         return saved;
     }
 
@@ -38,9 +35,12 @@ public class PeminjamanService {
         return peminjamanRepository.findById(id).orElse(null);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void updateStatus(Long id, PeminjamanStatus status) {
+        System.out.println("DEBUG: Updating status for ID " + id + " to " + status);
         Peminjaman p = getPeminjamanById(id);
         if (p != null) {
+            System.out.println("DEBUG: Found peminjaman. Current status: " + p.getStatus());
             // Logic for stock deduction/restoration based on status transition
             if (status == PeminjamanStatus.APPROVED && p.getStatus() != PeminjamanStatus.APPROVED) {
                 // Deduct stock
@@ -51,19 +51,14 @@ public class PeminjamanService {
                         item.setStock(item.getStock() - detail.getQuantity());
                         itemRepository.save(item);
                     } else {
-                        // Handle insufficient stock?
-                        // For now, allow negative or just proceed, OR throw exception.
-                        // Given user context, we might just proceed to avoid blocking 'acc' if data is
-                        // slightly off,
-                        // but ideally we should block. Let's just deduct.
                         item.setStock(Math.max(0, item.getStock() - detail.getQuantity()));
                         itemRepository.save(item);
                     }
                 }
             } else if ((status == PeminjamanStatus.REJECTED || status == PeminjamanStatus.COMPLETED)
-                    && p.getStatus() == PeminjamanStatus.APPROVED) {
-                // Return stock if it was previously approved and now is rejected (unlikely
-                // flow) or completed
+                    && (p.getStatus() == PeminjamanStatus.APPROVED || p.getStatus() == PeminjamanStatus.TAKEN)) {
+                // Return stock if it was previously approved/taken and now is rejected or
+                // completed
                 for (com.Habb.InventarisMSU.model.PeminjamanDetail detail : p.getDetails()) {
                     com.Habb.InventarisMSU.model.Item item = detail.getItem();
                     item.setStock(item.getStock() + detail.getQuantity());
@@ -71,13 +66,17 @@ public class PeminjamanService {
                 }
             }
 
+            if (status == PeminjamanStatus.TAKEN) {
+                p.setHandedOver(true);
+            } else if (status == PeminjamanStatus.COMPLETED) {
+                p.setReturned(true);
+            }
+
             p.setStatus(status);
             peminjamanRepository.save(p);
-
-            String subject = "Update Status Peminjaman MSU";
-            String text = "Halo " + p.getBorrowerName() + ",\n\n" +
-                    "Status peminjaman Anda telah diperbarui menjadi: " + status;
-            emailService.sendSimpleMessage(p.getEmail(), subject, text);
+            System.out.println("DEBUG: Status updated successfully.");
+        } else {
+            System.out.println("DEBUG: Peminjaman ID " + id + " not found.");
         }
     }
 

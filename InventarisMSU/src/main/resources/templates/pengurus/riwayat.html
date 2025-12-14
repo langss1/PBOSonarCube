@@ -70,14 +70,42 @@
                 <tr>
                     <th>No</th>
                     <th>Nama Peminjam</th>
-                    <th>Waktu Ambil</th>
-                    <th>Waktu Kembali</th>
+                    <th>Mulai Peminjaman</th>
+                    <th>Selesai Peminjaman</th>
                     <th>Fasilitas</th>
-                    <th>Cancel</th>
-                    <th>Submit</th>
+                    <th>Status</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(historyLoans)}">
+                    <td colspan="6" style="text-align:center;">Belum ada riwayat peminjaman</td>
+                </tr>
+                <tr th:each="p, iterStat : ${historyLoans}">
+                    <td th:text="${iterStat.count}">1</td>
+                    <td th:text="${p.borrowerName}">Nama Peminjam</td>
+                    <td th:text="${p.startDate}">2025-01-01</td>
+                    <td th:text="${p.endDate}">2025-01-01</td>
+                    <td>
+                        <button class="detail-btn"
+                            th:attr="data-detail=${p.description != null ? p.description : 'Tidak ada deskripsi'}">
+                            Detail
+                        </button>
+                        <!-- Note: ideally 'Fasilitas' details should be constructed from p.details list
+                             but for now we use description or similar as a placeholder if simple text needed,
+                             or we can construct a string from p.details via helper if available.
+                             Let's try to just show a generic 'Detail' button for now.
+                        -->
+                    </td>
+                    <td>
+                        <span th:text="${p.status}"
+                            th:classappend="${p.status.name() == 'COMPLETED' ? 'badge-success' : 'badge-danger'}"
+                            style="padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; background-color: #28a745;"
+                            th:style="${p.status.name() == 'REJECTED' ? 'padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; background-color: #dc3545;' : 'padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; background-color: #28a745;'}">
+                            STATUS
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
         </table>
     </div>
 
@@ -98,13 +126,8 @@
         </div>
     </div>
 
-    <script th:src="@{/assets/pengurus/shared-data.js}"></script>
-
+    <!-- Removed shared-data.js dependency for table population -->
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            initRiwayat();
-        });
-
         // Dropdown user
         function toggleUserDropdown() {
             document.getElementById("user-dropdown").classList.toggle("open");
@@ -123,8 +146,34 @@
         }
 
         function logout() {
+            // Clear mock session if any
             localStorage.removeItem("msuUser");
-            window.location.href = "/login";
+            window.location.href = "/logout"; // Use real logout endpoint
+        }
+
+        // Modal Logic
+        document.addEventListener("DOMContentLoaded", () => {
+            const detailButtons = document.querySelectorAll(".detail-btn");
+            const modalBg = document.getElementById("modalBg");
+            const detailContent = document.getElementById("detailContent");
+
+            if (!modalBg || !detailContent) return;
+
+            detailButtons.forEach(btn => {
+                btn.addEventListener("click", function () {
+                    detailContent.textContent = this.getAttribute("data-detail");
+                    modalBg.style.display = "flex";
+                });
+            });
+
+            modalBg.addEventListener("click", function (e) {
+                if (e.target === modalBg) closeModal();
+            });
+        });
+
+        function closeModal() {
+            const modalBg = document.getElementById("modalBg");
+            modalBg.style.display = "none";
         }
     </script>
 

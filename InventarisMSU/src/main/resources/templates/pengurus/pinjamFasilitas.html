@@ -88,7 +88,7 @@
         <tr th:each="p, iter : ${activeLoans}">
           <td th:text="${iter.count}"></td>
           <td th:text="${p.borrowerName}"></td>
-          <td th:text="${p.startDate}"></td>
+          <td th:text="${p.startDate} + ' ' + ${p.getStartTime()}"></td>
           <td th:text="${p.endDate}"></td>
           <td>
             <div th:each="d : ${p.details}">
@@ -96,26 +96,20 @@
             </div>
           </td>
           <td style="text-align: center;">
-            <!-- Already Taken (TAKEN) means this is Checked. If APPROVED, show button to mark TAKEN. -->
-            <span th:if="${p.status.name() == 'TAKEN'}" class="text-success">✅</span>
-            <form th:if="${p.status.name() == 'APPROVED'}" th:action="@{/pengurus/fasilitas/update-status}"
-              method="post">
+            <form th:action="@{/pengurus/fasilitas/update-status}" method="post">
               <input type="hidden" name="id" th:value="${p.id}" />
               <input type="hidden" name="action" value="TAKEN" />
-              <button type="submit" class="btn-check"
-                style="cursor: pointer; padding: 4px 8px; border: 1px solid #ccc; background: #fff; border-radius: 4px;">Ambil</button>
+              <input type="checkbox" onchange="this.form.submit()" th:checked="${p.status.name() == 'TAKEN'}"
+                th:disabled="${p.status.name() == 'TAKEN'}" style="transform: scale(1.5); cursor: pointer;" />
             </form>
           </td>
           <td style="text-align: center;">
-            <!-- Already Returned (COMPLETED) would remove it from this list usually, but if we kept it:
-                  Here we only show button if TAKEN. If APPROVED, disabled. -->
-            <form th:if="${p.status.name() == 'TAKEN'}" th:action="@{/pengurus/fasilitas/update-status}" method="post">
+            <form th:action="@{/pengurus/fasilitas/update-status}" method="post">
               <input type="hidden" name="id" th:value="${p.id}" />
               <input type="hidden" name="action" value="COMPLETED" />
-              <button type="submit" class="btn-check"
-                style="cursor: pointer; padding: 4px 8px; border: 1px solid #ccc; background: #fff; border-radius: 4px;">Kembali</button>
+              <input type="checkbox" onchange="this.form.submit()" th:disabled="${p.status.name() != 'TAKEN'}"
+                style="transform: scale(1.5); cursor: pointer;" />
             </form>
-            <span th:if="${p.status.name() == 'APPROVED'}" class="text-muted">-</span>
           </td>
         </tr>
       </tbody>
