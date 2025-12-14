@@ -31,8 +31,5 @@ public class HomeController {
         return "guest/bookingbarang";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+    
 }

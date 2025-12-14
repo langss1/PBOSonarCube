@@ -113,36 +113,20 @@
 	const btnLogout = document.getElementById("btnLogout");
 
 	// ====== CEK LOGIN / SESSION ======
-	let currentUser = null;
-	try {
-		const raw = localStorage.getItem("msuUser");
-		if (!raw) {
-			window.location.href = LOGIN_URL;
-			return;
-		}
-		currentUser = JSON.parse(raw);
-	} catch (err) {
-		console.error("Gagal membaca data user:", err);
-		window.location.href = LOGIN_URL;
-		return;
-	}
+	// Client-side session check removed - using Server-side Spring Security
+
 
 	// Set nama & role di navbar
-	if (userNameSpan && currentUser.username) {
-		userNameSpan.textContent = currentUser.username;
-	}
-	if (userRoleLabel) {
-		userRoleLabel.textContent =
-			currentUser.role === "pengelola" ? "Pengelola Side" : "Pengurus Side";
-	}
+	// User name/role update removed as it relied on localStorage
 
+
+	// Tombol logout (route tanpa .html)
 	// Tombol logout (route tanpa .html)
 	if (btnLogout) {
 		btnLogout.addEventListener("click", (e) => {
 			e.preventDefault();
 			if (!confirm("Yakin ingin keluar dari akun?")) return;
-			localStorage.removeItem("msuUser");
-			window.location.href = LOGIN_URL;
+			window.location.href = "/logout";
 		});
 	}
 

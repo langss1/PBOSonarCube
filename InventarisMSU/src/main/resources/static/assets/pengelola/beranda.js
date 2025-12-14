@@ -60,47 +60,16 @@ function filterCards(query, grids) {
 
 // =============== BOOT ===============
 (function initBeranda() {
-  // ROUTE login TANPA .html
-  // GANTI ini kalau route login kamu beda
-  const LOGIN_URL = "/login?role=pengelola";
+  // Client-side session check removed - using Server-side Spring Security
 
-  // ====== CEK LOGIN / SESSION SEDERHANA ======
-  let currentUser = null;
-  try {
-    const raw = localStorage.getItem("msuUser");
-    if (!raw) {
-      window.location.href = LOGIN_URL;
-      return;
-    }
-    currentUser = JSON.parse(raw);
-  } catch (err) {
-    console.error("Gagal membaca data user:", err);
-    window.location.href = LOGIN_URL;
-    return;
-  }
 
-  // Set nama & role di navbar
-  const userNameEl = document.getElementById("userName");
-  const userRoleEl = document.getElementById("userRoleLabel");
-
-  if (userNameEl && currentUser.username) {
-    userNameEl.textContent = currentUser.username;
-  }
-
-  if (userRoleEl) {
-    userRoleEl.textContent =
-      currentUser.role === "pengelola" ? "Pengelola Side" : "Pengurus Side";
-  }
-
-  // Tombol logout → hapus localStorage & balik ke login (tanpa .html)
+  // Tombol logout
   const btnLogout = document.getElementById("btnLogout");
   if (btnLogout) {
     btnLogout.addEventListener("click", (e) => {
       e.preventDefault();
       if (!confirm("Yakin ingin keluar dari akun?")) return;
-
-      localStorage.removeItem("msuUser");
-      window.location.href = LOGIN_URL;
+      window.location.href = "/logout";
     });
   }
 
