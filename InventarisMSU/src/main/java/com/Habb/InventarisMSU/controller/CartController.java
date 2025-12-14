@@ -8,9 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.Habb.InventarisMSU.repository.ItemRepository;
+import com.Habb.InventarisMSU.model.Item;
+
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
+
+    private final ItemRepository itemRepository;
+
+    public CartController(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
+    }
 
     @PostMapping("/add")
     public List<CartItem> addToCart(@RequestBody CartItem item, HttpSession session) {
@@ -27,6 +36,7 @@ public class CartController {
 
         if (existingItem.isPresent()) {
             existingItem.get().setQuantity(item.getQuantity()); // Update quantity
+            existingItem.get().setMaxQty(item.getMaxQty()); // Update maxQty
         } else {
             cart.add(item);
         }
@@ -37,7 +47,21 @@ public class CartController {
 
     @GetMapping
     public List<CartItem> getCart(HttpSession session) {
-        return getCartFromSession(session);
+        List<CartItem> cart = getCartFromSession(session);
+
+        // Sync with DB to ensure maxQty is up to date
+        for (CartItem ci : cart) {
+            if (ci.getName() != null) {
+                Item dbItem = itemRepository.findByName(ci.getName());
+                if (dbItem != null) {
+                    ci.setMaxQty(dbItem.getStock());
+                    if (ci.getQuantity() > dbItem.getStock()) {
+                        ci.setQuantity(dbItem.getStock());
+                    }
+                }
+            }
+        }
+        return cart;
     }
 
     @PostMapping("/clear")

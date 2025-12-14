@@ -106,18 +106,48 @@ window.MSUDates = (function () {
 })();
 
 // ====== Setup stok awal ======
+// ====== Setup stok awal ======
 function initCards() {
   document.querySelectorAll('.item-card').forEach(card => {
     const sisaEl = card.querySelector('.sisa');
+    const titleEl = card.querySelector('.item-title');
     if (!sisaEl) return;
-    const initial = Number(sisaEl.textContent.trim() || '0');
-    const type = card.dataset.type || 'barang';
-    card.dataset.max = (type === 'ruang') ? 1 : (Number.isNaN(initial) ? 0 : initial);
-    sisaEl.textContent = String(type === 'ruang' ? Math.min(1, initial || 1) : initial);
-    updateBadgeAndButtons(card, Number(sisaEl.textContent));
+
+    const type = card.dataset.type || 'barang'; // 'barang' or 'ruang'
+
+    // 1. Tentukan Max Stock
+    let max = Number(card.dataset.max);
+    if (isNaN(max) || !card.hasAttribute('data-max')) {
+      let initial = Number(sisaEl.textContent.trim() || '0');
+      if (Number.isNaN(initial)) initial = 0;
+
+      if (type === 'ruang') {
+        max = 1; // Ruang selalu max 1 (di homepage context)
+      } else {
+        max = initial;
+      }
+      card.dataset.max = max;
+    }
+
+    // 2. Cek cart
+    let inCart = 0;
+    if (window.MSUCart) {
+      const name = titleEl ? titleEl.textContent.trim() : '';
+      const found = window.MSUCart.get().find(it => it.name === name && it.type === type);
+      if (found) inCart = Number(found.quantity || 0);
+    }
+
+    // 3. Sisa efektif
+    let currentSisa = max - inCart;
+    if (currentSisa < 0) currentSisa = 0;
+
+    // 4. Update UI
+    sisaEl.textContent = String(currentSisa);
+    updateBadgeAndButtons(card, currentSisa);
   });
 }
 initCards();
+window.addEventListener('msu:cart-updated', initCards);
 
 function updateBadgeAndButtons(card, sisa) {
   const type = card.dataset.type || 'barang';

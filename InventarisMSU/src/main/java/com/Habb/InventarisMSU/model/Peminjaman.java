@@ -16,6 +16,11 @@ public class Peminjaman {
     private String email;
     private String phone;
     private String reason;
+    private String nimNip;
+    private String department;
+    private String description;
+    private String documentPath;
+    private Integer duration;
 
     private LocalDate startDate;
     private LocalDate endDate;
@@ -77,6 +82,46 @@ public class Peminjaman {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getNimNip() {
+        return nimNip;
+    }
+
+    public void setNimNip(String nimNip) {
+        this.nimNip = nimNip;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDocumentPath() {
+        return documentPath;
+    }
+
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
     }
 
     public LocalDate getStartDate() {
