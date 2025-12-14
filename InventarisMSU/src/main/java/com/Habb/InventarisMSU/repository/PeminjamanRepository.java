@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface PeminjamanRepository extends JpaRepository<Peminjaman, Long> {
     List<Peminjaman> findByStatus(PeminjamanStatus status);
+
+    List<Peminjaman> findByStatusNot(PeminjamanStatus status);
 }
