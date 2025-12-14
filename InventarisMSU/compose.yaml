@@ -9,8 +9,11 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    ports:               # expose ke host
-      - "8080:8080"      # host:container
+    ports:
+      # expose ke host
+      - "8080:8080" # host:container
+    volumes:
+      - ./uploads:/app/uploads
     networks:
       - inventaris-net
 
