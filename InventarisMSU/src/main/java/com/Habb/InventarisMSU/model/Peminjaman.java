@@ -22,6 +22,9 @@ public class Peminjaman {
     private String documentPath;
     private Integer duration;
 
+    @Column(name = "session_time") // Mapping explicitly to avoid reserved word issues if any
+    private String session;
+
     private LocalDate startDate;
     private LocalDate endDate;
 
@@ -122,6 +125,14 @@ public class Peminjaman {
 
     public void setDuration(Integer duration) {
         this.duration = duration;
+    }
+
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
     }
 
     public LocalDate getStartDate() {

@@ -136,26 +136,24 @@
               </div>
             </div>
 
-            <div class="col-md-3">
-              <label class="form-label">Jam Mulai</label>
+            <div class="col-md-6">
+              <label class="form-label">Sesi Peminjaman</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                <input type="time" class="form-control" id="startTime" required />
-                <div class="invalid-feedback">Pilih waktu mulai.</div>
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label">Durasi</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-hourglass-split"></i></span>
-                <select class="form-select" id="duration" required>
-                  <option value="" selected disabled>Pilih</option>
-                  <option value="1">1 jam</option>
-                  <option value="2">2 jam</option>
-                  <option value="3">3 jam</option>
-                  <option value="4">4 jam</option>
-                  <option value="8">Seharian</option>
+                <select class="form-select" id="session" required>
+                  <option value="" selected disabled>Pilih Sesi</option>
+                  <optgroup label="Sesi (1/3 Hari)">
+                    <option value="Pagi">Pagi (06.00 - 12.00)</option>
+                    <option value="Siang">Siang (12.00 - 18.00)</option>
+                    <option value="Malam">Malam (18.00 - 20.00)</option>
+                  </optgroup>
+                  <optgroup label="Paket (2/3 Hari)">
+                    <option value="PagiSiang">Pagi & Siang (06.00 - 18.00)</option>
+                    <option value="SiangMalam">Siang & Malam (12.00 - 20.00)</option>
+                  </optgroup>
+                  <optgroup label="Full Day">
+                    <option value="Seharian">Seharian (06.00 - 20.00)</option>
+                  </optgroup>
                 </select>
                 <div class="invalid-feedback">Pilih durasi.</div>
               </div>
@@ -198,7 +196,7 @@
           <h5 class="mb-2"><i class="bi bi-qr-code me-1"></i> Donasi QRIS (Opsional)</h5>
           <div class="row g-3 align-items-center">
             <div class="col-md-5 text-center">
-              <img src="qris.png" th:src="@{/assets/guest/qris.png}" alt="QRIS" class="qris-img">
+              <img src="qris msu.jpg" th:src="@{/assets/guest/qris msu.jpg}" alt="QRIS" class="qris-img">
               <div class="form-text mt-2">Scan untuk donasi. Terima kasih 🙏</div>
             </div>
             <div class="col-md-7">
@@ -226,6 +224,12 @@
     </div>
   </main>
 
+  <!-- FAB Checkout (hidden in form, actually) but WA is needed -->
+  <!-- FLOATING CONTACT (WA) -->
+  <a href="https://wa.me/6288279829071" target="_blank" id="fabContact" class="fab-contact" aria-label="Hubungi Admin">
+    <i class="bi bi-whatsapp"></i>
+  </a>
+
   <!-- FOOTER -->
   <footer class="site-footer mt-5">
     <div class="container py-4">
@@ -237,7 +241,7 @@
           </div>
           <div class="text-muted small">
             Jl. Telekomunikasi No.1, Bandung • Jawa Barat, Indonesia<br />
-            Telp: 08xx-xxxx-xxxx • Email: msu@example.ac.id
+            Telp: +62 882-7982-9071 • Email: msu.telyu@gmail.com
           </div>
         </div>
         <div class="col-md-6 text-md-end">
@@ -246,6 +250,48 @@
       </div>
     </div>
   </footer>
+
+  <!-- Modal Konfirmasi Hapus (Generic) -->
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true" style="z-index: 2050;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-body p-4 text-center">
+          <div class="mb-3 text-warning">
+            <i class="bi bi-exclamation-circle" style="font-size: 3rem;"></i>
+          </div>
+          <h5 class="mb-2 fw-bold" id="confirmDelTitle">Konfirmasi Hapus</h5>
+          <p class="text-muted mb-4" id="confirmDelMsg">Apakah anda yakin?</p>
+          <div class="d-flex justify-content-center gap-2">
+            <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal"
+              style="border-radius:12px">Tidak</button>
+            <button type="button" class="btn btn-danger px-4 fw-bold" id="btnConfirmDelAction"
+              style="border-radius:12px">Ya, Hapus</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Submit -->
+  <div class="modal fade" id="confirmSubmitModal" tabindex="-1" aria-hidden="true" style="z-index: 2055;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-body p-4 text-center">
+          <div class="mb-3 text-primary">
+            <i class="bi bi-clipboard-check" style="font-size: 3rem;"></i>
+          </div>
+          <h5 class="mb-2 fw-bold">Konfirmasi Data</h5>
+          <p class="text-muted mb-4">Pastikan data yang Anda input sudah benar. Lanjutkan pengiriman?</p>
+          <div class="d-flex justify-content-center gap-2">
+            <button type="button" class="btn btn-light px-4 fw-bold" data-bs-dismiss="modal"
+              style="border-radius:12px">Cek Lagi</button>
+            <button type="button" class="btn btn-primary px-4 fw-bold" id="btnRealSubmit" style="border-radius:12px">Ya,
+              Kirim</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script th:src="@{/assets/guest/cart.js}"></script>

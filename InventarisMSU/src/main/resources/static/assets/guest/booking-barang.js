@@ -29,13 +29,41 @@ window.addEventListener('DOMContentLoaded', () => {
     initRevealObserver();
     initUI(); // Initialize UI elements
 
+    /* Setup Modal Konfirmasi Hapus */
+    const delModalEl = document.getElementById('confirmDeleteModal');
+    let delModalFn = null; // callback action
+    let delModalInst = null;
+    if (delModalEl) {
+        delModalInst = new bootstrap.Modal(delModalEl);
+        document.getElementById('btnConfirmDelAction')?.addEventListener('click', () => {
+            if (delModalFn) delModalFn();
+            delModalInst.hide();
+        });
+    }
+    // Global helper agar bisa dipanggil di mana saja
+    window.openDelConfirm = function (title, msg, onConfirm) {
+        if (!delModalInst) {
+            if (confirm(msg)) onConfirm(); // Fallback
+            return;
+        }
+        document.getElementById('confirmDelTitle').textContent = title;
+        document.getElementById('confirmDelMsg').textContent = msg;
+        delModalFn = onConfirm;
+        delModalInst.show();
+    };
+
     /* Hapus semua cart */
     document.getElementById('clearCartBtn')?.addEventListener('click', () => {
-        if (!confirm("Yakin ingin menghapus semua dari keranjang?")) return;
-        if (window.MSUCart) MSUCart.clear();
-        renderCartList();
-        buildTabsFromCart(); // refresh panel kiri
-        window.MSUCart?.renderBadge();
+        window.openDelConfirm(
+            'Hapus Semua?',
+            'Apakah anda ingin menghapus semua barang dari keranjang?',
+            () => {
+                if (window.MSUCart) MSUCart.clear();
+                renderCartList();
+                buildTabsFromCart();
+                window.MSUCart?.renderBadge();
+            }
+        );
     });
 });
 
@@ -133,37 +161,74 @@ function slotTime(label) {
 }
 
 /* Render booking list di bawah kalender */
-function renderBookingList(container, itemName, y, m, day) {
+/* Render booking list di bawah kalender */
+async function renderBookingList(container, itemName, y, m, day) {
     const box = container.querySelector('.booking-list-body');
     const headerDate = container.querySelector('.booking-list-header .date-label');
     if (!box) return;
 
-    const bookings = getBookingsFor(itemName, y, m, day);
+    // Set header date immediately
     const dObj = new Date(y, m, day);
     const label = dObj.toLocaleDateString('id-ID', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
     if (headerDate) headerDate.textContent = label;
 
-    if (!bookings.length) {
-        box.innerHTML = `<div class="booking-list-empty">
-      Belum ada peminjaman tercatat pada tanggal ini.
-    </div>`;
-        return;
+    box.innerHTML = '<div class="text-center text-muted py-3"><span class="spinner-border spinner-border-sm text-success"></span> Memuat...</div>';
+
+    try {
+        // Fetch API
+        const mon = String(m + 1).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        const iso = `${y}-${mon}-${dd}`;
+
+        const res = await fetch(`/api/peminjaman?date=${iso}`);
+        if (!res.ok) throw new Error('Network err');
+        const allBookings = await res.json();
+
+        // Filter for this item (partial name match)
+        // itemName example: "Proyektor", "Sound System"
+        // Booking items example: "Proyektor (1)", "Sound System (1)"
+        // If itemName is strictly equal, we might miss if API returns "Proyektor BenQ". 
+        // We'll use includes.
+        const relevant = allBookings.filter(b => {
+            // Check if any item in booking contains our itemName
+            // Case insensitive
+            if (!b.items) return false;
+            return b.items.some(it => it.toLowerCase().includes((itemName || '').toLowerCase()));
+        });
+
+        if (!relevant.length) {
+            box.innerHTML = `<div class="booking-list-empty">
+          Belum ada peminjaman tercatat untuk item ini pada tanggal ini.
+        </div>`;
+            return;
+        }
+
+        box.innerHTML = relevant.map(b => {
+            // Find slot/session info from description
+            let slotLabel = "Waktu ditentukan";
+            const sessionMatch = b.description.match(/\[Sesi:\s*([^\]]+)\]/);
+            if (sessionMatch) {
+                // Formatting session to be nicer
+                let sRaw = sessionMatch[1];
+                // Remove redundant time info if present in label
+                slotLabel = sRaw;
+            }
+
+            return `
+          <div class="booking-list-item">
+            <div class="bli-slot">${slotLabel}</div>
+            <div class="bli-main">${b.department || 'Peminjam'}</div>
+            <div class="bli-meta text-muted">Status: ${b.status}</div>
+          </div>
+        `;
+        }).join('');
+
+    } catch (e) {
+        console.error(e);
+        box.innerHTML = `<div class="text-danger small">Gagal memuat data.</div>`;
     }
-
-    box.innerHTML = bookings.map(b => {
-        const time = slotTime(b.slot);
-        const slotLabel = time ? `${b.slot} • ${time}` : b.slot;
-
-        return `
-      <div class="booking-list-item">
-        <div class="bli-slot">${slotLabel}</div>
-        <div class="bli-main">${b.kegiatan}</div>
-        <div class="bli-meta">PJ: ${b.pj}</div>
-      </div>
-    `;
-    }).join('');
 }
 
 /* Render mini kalender spesifik barang */
@@ -272,7 +337,7 @@ function buildItemPanelHTML(item) {
            <button class="btn btn-sm btn-outline-secondary rounded-circle btn-qplus" 
                    style="width:32px;height:32px" ${disablePlus ? 'disabled' : ''}><i class="bi bi-plus"></i></button>
         </div>
-        <div class="text-muted small mb-3">
+        <div class="text-muted small mb-3 stock-limit-text">
              ${isRuang ? '(Maks 1)' : `(Stok tersedia: ${effectiveMax})`}
         </div>
       </div>
@@ -306,7 +371,6 @@ function buildTabsFromCart() {
     initUI();
     if (!tabsUL || !tabsContent) return;
     const cart = (window.MSUCart && MSUCart.get()) || [];
-    console.log("buildTabsFromCart: Cart data:", cart); // Debug log
 
     // Kosongkan dulu
     tabsUL.innerHTML = '';
@@ -359,6 +423,11 @@ function buildTabsFromCart() {
     syncDateBlockWithActiveItem();
     // Render ringkasan keranjang kanan
     renderCartList();
+
+    // TRIGGER CHECK NOW that elements exist
+    if (typeof checkRealtimeAvailability === 'function') {
+        checkRealtimeAvailability();
+    }
 }
 
 /* ---------- Helper: Panel aktif & nama item aktif ---------- */
@@ -408,7 +477,13 @@ function initPanels() {
             const item = cart.find(it => it.name === name);
             const max = item ? (item.maxQty || 999) : 999;
             const isRuang = (type === 'ruang');
-            const effectiveMax = isRuang ? 1 : max;
+            let effectiveMax = isRuang ? 1 : max;
+
+            // Check Dynamic Max from real-time API
+            if (pane.dataset.dynamicMax) {
+                const dm = Number(pane.dataset.dynamicMax);
+                if (!isNaN(dm)) effectiveMax = dm;
+            }
 
             let clean = Number(newQty || 0);
             if (clean < 0) clean = 0;
@@ -441,7 +516,16 @@ function initPanels() {
 
         minus?.addEventListener('click', () => {
             const current = Number(qtyBox.textContent || 0);
-            setQty(current - 1);
+            if (current <= 1) {
+                // Konfirmasi dulu sebelum jadi 0 (hapus)
+                window.openDelConfirm(
+                    'Hapus Item?',
+                    `Apakah anda ingin menghapus "${name}" dari keranjang?`,
+                    () => setQty(0)
+                );
+            } else {
+                setQty(current - 1);
+            }
         });
         plus?.addEventListener('click', () => {
             const current = Number(qtyBox.textContent || 0);
@@ -459,43 +543,125 @@ function initPanels() {
     });
 }
 
-/* ---------- Blocking tanggal berdasarkan item aktif ---------- */
+/* ---------- Real-time Availability Check ---------- */
 const loanDate = document.getElementById('loanDate');
+const sessionEl = document.getElementById('session');
 
-function bookedSetFor(date) {
-    const pane = getActivePanel();
-    if (!pane) return new Set();
-    const name = pane.dataset.itemName || '';
-    const y = date.getFullYear(), m = date.getMonth();
-    return new Set(getBookedDaysFor(name, y, m));
+async function checkRealtimeAvailability() {
+    const dVal = loanDate?.value;
+    const sVal = sessionEl?.value;
+
+    if (!dVal) return;
+
+    try {
+        const url = `/api/peminjaman/check?date=${dVal}&session=${encodeURIComponent(sVal || '')}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Availability check failed');
+
+        const availabilityData = await res.json(); // Array of {itemId, itemName, available}
+
+        console.log("checkRealtimeAvailability: Data received", availabilityData);
+
+        // --- UPDATE UI PANELS ---
+        const tabsContent = document.getElementById('itemTabContent');
+        if (!tabsContent) return;
+
+        // Iterate over all panels (items in cart)
+        Array.from(tabsContent.querySelectorAll('.tab-pane')).forEach(pane => {
+            const rawName = pane.dataset.itemName;
+            const type = pane.dataset.itemType;
+            if (!rawName) return;
+
+            const normalizedName = rawName.trim().toLowerCase();
+
+            // Robust Match
+            const stockInfo = availabilityData.find(s => (s.itemName || '').trim().toLowerCase() === normalizedName);
+            let realAvailable = 999;
+
+            if (stockInfo) {
+                realAvailable = stockInfo.available;
+            }
+
+            // Ruangan max always 1
+            if (type === 'ruang') {
+                realAvailable = (realAvailable > 0) ? 1 : 0;
+            }
+
+            console.log(`Checking ${rawName}: RealAvailable=${realAvailable}`);
+
+            // Update Text "Stok tersedia: X"
+            // Use the specific class we added
+            const limitEl = pane.querySelector('.stock-limit-text');
+            if (limitEl) {
+                if (type === 'ruang') {
+                    limitEl.textContent = '(Maks 1)';
+                } else {
+                    limitEl.textContent = `(Stok tersedia: ${realAvailable})`;
+                }
+            } else {
+                console.warn("Stock limit text element not found for", rawName);
+            }
+
+            // Update Controls
+            const qtyBox = pane.querySelector('.qty-display');
+            const qtyText = pane.querySelector('.qty-display-text');
+            const plusBtn = pane.querySelector('.btn-qplus');
+
+            let currentQty = Number(qtyBox?.textContent || 0);
+
+            // Auto-reduce if current > available
+            if (currentQty > realAvailable) {
+                currentQty = realAvailable;
+                if (qtyBox) qtyBox.textContent = currentQty;
+                if (qtyText) qtyText.textContent = currentQty;
+
+                // Update Badge
+                const index = Array.from(tabsContent.children).findIndex(p => p === pane);
+                const tabButton = document.getElementById(index >= 0 ? `tab-${index}` : '');
+                if (tabButton) {
+                    const badge = tabButton.querySelector('.badge');
+                    if (badge) badge.textContent = `${currentQty}x`;
+                }
+
+                // Update MSUCart
+                if (window.MSUCart) window.MSUCart.update(rawName, type, currentQty);
+            }
+
+            // Update Plus Button State
+            if (plusBtn) {
+                plusBtn.disabled = (currentQty >= realAvailable);
+            }
+
+            // Update pane dataset for setQty to use
+            pane.dataset.dynamicMax = realAvailable;
+        });
+
+    } catch (e) {
+        console.error("Error checking availability:", e);
+    }
 }
 
+// Add listeners
+loanDate?.addEventListener('change', checkRealtimeAvailability);
+sessionEl?.addEventListener('change', checkRealtimeAvailability);
+
+// Also trigger on load if date exists (with short delay to ensure rendering)
+// No need to call here anymore if buildTabsFromCart calls it. 
+// But keeping it as fallback won't hurt if buildTabsFromCart hasn't run yet.
+if (loanDate?.value && sessionEl?.value) {
+    // Only if tabs exist
+    if (document.getElementById('itemTabContent')?.children?.length) {
+        checkRealtimeAvailability();
+    }
+}
+
+/* Legacy syncing (keeping it for non-blocking UI sync if needed, but the real check is above) */
 function syncDateBlockWithActiveItem() {
+    // Legacy local check code removed or minimized
     if (!loanDate) return;
-    // Min hari ini
     const today = new Date(); today.setHours(0, 0, 0, 0);
     loanDate.min = today.toISOString().split('T')[0];
-
-    // Jika nilai loanDate saat ini kebetulan termasuk merah untuk item aktif → kosongkan
-    if (loanDate.value) {
-        const d = new Date(loanDate.value);
-        const booked = bookedSetFor(d);
-        if (booked.has(d.getDate())) {
-            loanDate.value = '';
-        }
-    }
 }
-
-// Validasi saat user memilih tanggal
-loanDate?.addEventListener('change', () => {
-    if (!loanDate.value) return;
-    const d = new Date(loanDate.value);
-    const booked = bookedSetFor(d);
-    if (booked.has(d.getDate())) {
-        alert('Tanggal yang dipilih terbooking untuk item aktif. Silakan pilih tanggal lain.');
-        loanDate.value = '';
-    }
-});
 
 /* =========================================================
    SUBMIT VIA MAILTO (Tanpa backend) — kirim ke email peminjam
@@ -555,6 +721,7 @@ function buildMailtoURL({ to, subject, body, cc = '', bcc = '' }) {
         }
     });
 
+    /* SUBMIT HANDLER - Modified for Modal Confirmation */
     form?.addEventListener('submit', async (e) => {
         e.preventDefault(); e.stopPropagation();
         if (!form.checkValidity()) {
@@ -563,6 +730,27 @@ function buildMailtoURL({ to, subject, body, cc = '', bcc = '' }) {
             return;
         }
 
+        // Show Confirmation Modal first
+        const confirmSubmitModalEl = document.getElementById('confirmSubmitModal');
+        const confirmSubmitModal = confirmSubmitModalEl ? new bootstrap.Modal(confirmSubmitModalEl) : null;
+        const btnRealSubmit = document.getElementById('btnRealSubmit');
+
+        if (confirmSubmitModal) {
+            confirmSubmitModal.show();
+            // Handle real submit inside modal button click
+            // Remove previous listeners using cloned node or just setting onclick (simple way for this context)
+            // Using onclick property to overwrite previous handler if user opens modal multiple times
+            btnRealSubmit.onclick = function () {
+                confirmSubmitModal.hide();
+                processSubmission();
+            };
+        } else {
+            // Fallback if modal missing
+            if (confirm("Pastikan data sudah benar. Kirim booking?")) processSubmission();
+        }
+    });
+
+    async function processSubmission() {
         const loanNo = document.getElementById('loanNumber')?.value?.trim() || '';
         const email = document.getElementById('email')?.value?.trim() || '';
         const pj = document.getElementById('pjName')?.value?.trim() || '';
@@ -571,9 +759,20 @@ function buildMailtoURL({ to, subject, body, cc = '', bcc = '' }) {
         const kep = document.getElementById('purpose')?.value?.trim() || '';
         const det = document.getElementById('longPurpose')?.value?.trim() || '';
         const tgl = document.getElementById('loanDate')?.value || '';
-        const jam = document.getElementById('startTime')?.value || '';
-        const dur = (document.getElementById('duration')?.value || '') + ' jam';
-        const don = getDonation();
+        const sessionEl = document.getElementById('session');
+        const sessionVal = sessionEl ? sessionEl.value : '';
+
+        // Calculate details from session
+        const sessMap = {
+            'Pagi': { time: '06:00', dur: 6, label: 'Pagi (06.00 - 12.00)' },
+            'Siang': { time: '12:00', dur: 6, label: 'Siang (12.00 - 18.00)' },
+            'Malam': { time: '18:00', dur: 2, label: 'Malam (18.00 - 20.00)' },
+            'PagiSiang': { time: '06:00', dur: 12, label: 'Pagi & Siang (06.00 - 18.00)' },
+            'SiangMalam': { time: '12:00', dur: 8, label: 'Siang & Malam (12.00 - 20.00)' },
+            'Seharian': { time: '06:00', dur: 14, label: 'Seharian (06.00 - 20.00)' }
+        };
+        const sInfo = sessMap[sessionVal] || { time: '06:00', dur: 0, label: sessionVal };
+        const dur = sInfo.dur + ' jam';
 
         if (email) localStorage.setItem('lastBookingEmail', email);
 
@@ -582,111 +781,68 @@ function buildMailtoURL({ to, subject, body, cc = '', bcc = '' }) {
             alert('Keranjang kosong.');
             return;
         }
-        const lines = cart
-            .map(it => `- ${it.type === 'ruang' ? '[Ruang]' : '[Barang]'} ${it.name} × ${it.qty}`)
-            .join('\n');
 
-        const subject = `Konfirmasi Booking MSU — ${pj || email} — ${tgl || '-'}`;
-        const body =
-            `Assalamu’alaikum,
-
-Formulir booking Anda telah kami terima dan saat ini sedang diproses pengelola.
-
-Ringkasan Peminjaman:
-Nomor Peminjaman : ${loanNo || '-'}
-Penanggung jawab : ${pj || '-'}
-NIM/NIP           : ${nim || '-'}
-Email             : ${email || '-'}
-Prodi/Unit        : ${prodi || '-'}
-Keperluan         : ${kep || '-'}
-
-Jadwal:
-Tanggal : ${tgl || '-'}
-Mulai   : ${jam || '-'}
-Durasi  : ${dur || '-'}
-
-Item diajukan:
-${lines || '(kosong)'}
-
-Donasi QRIS: Rp${toRupiah(don)}
-
-Catatan:
-${det || '-'}
-
-Terima kasih.
-— Masjid Syamsul Ulum`;
-
-
-        /* SUBMIT VIA BACKEND API */
+        /* BACKEND SUBMIT */
         const formData = new FormData();
         const pjName = document.getElementById('pjName');
         const idNumber = document.getElementById('idNumber');
         const studyProgram = document.getElementById('studyProgram');
         const purpose = document.getElementById('purpose');
         const longPurpose = document.getElementById('longPurpose');
-        const startTime = document.getElementById('startTime');
-        const duration = document.getElementById('duration');
-        const loanNumber = document.getElementById('loanNumber'); // Assuming loanNumber is phone
+        const loanNumber = document.getElementById('loanNumber');
 
         formData.append('borrowerName', pjName.value);
-        formData.append('email', email); // Use the 'email' variable directly
+        formData.append('email', email);
         formData.append('phone', loanNumber.value);
         formData.append('nimNip', idNumber.value);
         formData.append('department', studyProgram.value);
         formData.append('reason', purpose.value);
-        // Gabungkan deskripsi + jam mulai agar info waktu tidak hilang
-        formData.append('description', `[Jam Mulai: ${startTime.value}] ${longPurpose.value}`);
-        formData.append('startDate', loanDate.value);
-        formData.append('duration', duration.value);
+        formData.append('description', `[Sesi: ${sInfo.label}] [Jam Mulai: ${sInfo.time}] ${longPurpose.value}`);
+        formData.append('startDate', document.getElementById('loanDate').value);
+        formData.append('duration', sInfo.dur);
 
-        // File upload
         const fileInput = document.getElementById('requirements');
         if (fileInput.files.length > 0) {
             formData.append('file', fileInput.files[0]);
         }
+        formData.append('items', JSON.stringify(cart));
 
-        // Cart items
-        const items = MSUCart.get();
-        formData.append('items', JSON.stringify(items));
-
+        // Loading state
         const originalText = btnSubmit.innerHTML;
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
 
-        fetch('/api/peminjaman', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => {
-                if (response.ok) {
-                    MSUCart.clear();
-                    window.location.href = '/success';
-                } else {
-                    return response.text().then(text => { throw new Error(text) });
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Gagal menyimpan booking: ' + err.message);
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = originalText;
+        try {
+            const response = await fetch('/api/peminjaman', {
+                method: 'POST',
+                body: formData
             });
-    });
 
-    // Load meta booking (tanggal, jam, durasi) dari localStorage (std: msu_dates_v1)
+            if (response.ok) {
+                MSUCart.clear();
+                window.location.href = '/success';
+            } else {
+                const text = await response.text();
+                throw new Error(text);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Gagal menyimpan booking: ' + err.message);
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = originalText;
+        }
+    }
+
+    // Load meta booking (tanggal, sesi) dari localStorage (std: msu_dates_v2)
     try {
-        const meta = JSON.parse(localStorage.getItem('msu_dates_v1') || '{}');
+        const meta = JSON.parse(localStorage.getItem('msu_dates_v2') || '{}');
         if (meta.start) {
             const el = document.getElementById('loanDate');
             if (el) el.value = meta.start;
         }
-        if (meta.time) {
-            const el = document.getElementById('startTime');
-            if (el) el.value = meta.time;
-        }
-        if (meta.duration) {
-            const el = document.getElementById('duration');
-            if (el) el.value = meta.duration;
+        if (meta.session) {
+            const el = document.getElementById('session');
+            if (el) el.value = meta.session;
         }
     } catch (e) { }
 
