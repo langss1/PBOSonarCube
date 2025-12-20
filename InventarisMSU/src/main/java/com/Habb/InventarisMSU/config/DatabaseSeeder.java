@@ -15,6 +15,25 @@ public class DatabaseSeeder {
     @Bean
     public CommandLineRunner seedUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
+            // FIX: Check for users with empty emails and fix them based on Role
+            java.util.List<User> allUsers = userRepository.findAll();
+            for (User user : allUsers) {
+                if (user.getRole() == com.Habb.InventarisMSU.model.Role.PENGELOLA) {
+                    if (!"pengelola@msu.com".equals(user.getEmail())) {
+                        user.setEmail("pengelola@msu.com");
+                        userRepository.save(user);
+                        System.out.println("FIXED: Set email for PENGELOLA user to pengelola@msu.com");
+                    }
+                } else if (user.getRole() == com.Habb.InventarisMSU.model.Role.PENGURUS) {
+                    if (!"pengurus@msu.com".equals(user.getEmail())) {
+                        user.setEmail("pengurus@msu.com");
+                        userRepository.save(user);
+                        System.out.println("FIXED: Set email for PENGURUS user to pengurus@msu.com");
+                    }
+                }
+            }
+
+            // Standard password update if needed
             updateUserPasswordIfPlainText(userRepository, passwordEncoder, "pengelola@msu.com", "password");
             updateUserPasswordIfPlainText(userRepository, passwordEncoder, "pengurus@msu.com", "password");
         };

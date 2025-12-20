@@ -177,27 +177,25 @@
                   </li>
                 </ul>
               </td>
+
+              <!-- SUDAH AMBIL COLUMN -->
               <td class="text-center">
-                <form th:action="@{/pengurus/fasilitas/update-status}" method="post">
-                  <input type="hidden" name="id" th:value="${p.id}" />
-                  <input type="hidden" name="action" value="TAKEN" />
-                  <div class="form-check d-flex justify-content-center">
-                    <input class="form-check-input" type="checkbox" onchange="this.form.submit()"
-                      th:checked="${p.status.name() == 'TAKEN'}" th:disabled="${p.status.name() == 'TAKEN'}"
-                      style="cursor: pointer; width: 1.2rem; height: 1.2rem;" />
-                  </div>
-                </form>
+                <div class="form-check d-flex justify-content-center">
+                  <!-- Logic: Checked if Status is TAKEN. Disabled if already TAKEN. -->
+                  <input class="form-check-input checkbox-taken" type="checkbox"
+                    th:checked="${p.status.name() == 'TAKEN'}" th:disabled="${p.status.name() == 'TAKEN'}"
+                    th:data-id="${p.id}" style="cursor: pointer; width: 1.2rem; height: 1.2rem;" />
+                </div>
               </td>
+
+              <!-- SUDAH KEMBALI COLUMN -->
               <td class="text-center">
-                <form th:action="@{/pengurus/fasilitas/update-status}" method="post">
-                  <input type="hidden" name="id" th:value="${p.id}" />
-                  <input type="hidden" name="action" value="COMPLETED" />
-                  <div class="form-check d-flex justify-content-center">
-                    <input class="form-check-input" type="checkbox" onchange="this.form.submit()"
-                      th:disabled="${p.status.name() != 'TAKEN'}"
-                      style="cursor: pointer; width: 1.2rem; height: 1.2rem;" />
-                  </div>
-                </form>
+                <div class="form-check d-flex justify-content-center">
+                  <!-- Logic: Enabled ONLY if Status is TAKEN. -->
+                  <input class="form-check-input checkbox-returned" type="checkbox"
+                    th:disabled="${p.status.name() != 'TAKEN'}" th:data-id="${p.id}"
+                    style="cursor: pointer; width: 1.2rem; height: 1.2rem;" />
+                </div>
               </td>
             </tr>
           </tbody>
@@ -206,7 +204,82 @@
     </div>
   </div>
 
+  <!-- HIDDEN FORM FOR ACTIONS -->
+  <form id="statusForm" method="post" th:action="@{/pengurus/fasilitas/update-status}" style="display: none;">
+    <input type="hidden" name="id" id="formId">
+    <input type="hidden" name="action" id="formAction">
+  </form>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+      // Handle "Sudah Ambil" Checkbox
+      const takenCheckboxes = document.querySelectorAll('.checkbox-taken');
+      takenCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function (e) {
+          e.preventDefault();
+          const id = this.getAttribute('data-id');
+
+          if (this.checked) {
+            Swal.fire({
+              title: 'Konfirmasi Pengambilan',
+              text: "Apakah barang ini sudah diambil oleh peminjam?",
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonColor: '#198754',
+              cancelButtonColor: '#6c757d',
+              confirmButtonText: 'Ya, Sudah ambil',
+              cancelButtonText: 'Tidak'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                submitStatus(id, 'TAKEN');
+              } else {
+                this.checked = false; // Revert check
+              }
+            });
+          }
+        });
+      });
+
+      // Handle "Sudah Kembali" Checkbox
+      const returnedCheckboxes = document.querySelectorAll('.checkbox-returned');
+      returnedCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function (e) {
+          e.preventDefault();
+          const id = this.getAttribute('data-id');
+
+          if (this.checked) {
+            Swal.fire({
+              title: 'Konfirmasi Pengembalian',
+              text: "Apakah barang ini sudah dikembalikan dan diperiksa?",
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonColor: '#198754',
+              cancelButtonColor: '#6c757d',
+              confirmButtonText: 'Ya, Sudah kembali',
+              cancelButtonText: 'Tidak'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                submitStatus(id, 'COMPLETED');
+              } else {
+                this.checked = false; // Revert check
+              }
+            });
+          }
+        });
+      });
+
+      function submitStatus(id, action) {
+        document.getElementById('formId').value = id;
+        document.getElementById('formAction').value = action;
+        document.getElementById('statusForm').submit();
+      }
+    });
+  </script>
 </body>
 
 </html>
