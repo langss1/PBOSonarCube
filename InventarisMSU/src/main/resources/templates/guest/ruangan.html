@@ -101,11 +101,12 @@
     <!-- GRID 5 kolom × 2 baris (contoh 10 ruang) -->
     <section class="items-grid" id="itemsGrid">
       <div class="col reveal-up" th:each="item : ${items}">
-        <article class="item-card tap-anim" data-type="ruang" th:data-max="${item.stock}">
+        <article class="item-card tap-anim" data-type="ruang"
+          th:classappend="${item.status != 'Tersedia'} ? ' item-disabled' : ''" th:data-max="${item.stock}">
           <div class="item-thumb">
             <img th:src="@{'/assets/guest/' + ${item.imageUrl}}" th:alt="${item.name}">
-            <span class="badge-status" th:text="${item.status}">Active</span>
-            <div class="qty-actions">
+            <span class="badge-status" th:text="${item.status == 'Tersedia' ? 'Active' : 'Inactive'}">Active</span>
+            <div class="qty-actions" th:if="${item.status == 'Tersedia'}">
               <button class="qty-btn" data-action="inc" aria-label="Batalkan pilih">−</button>
               <button class="qty-btn" data-action="dec" aria-label="Pilih ruangan">＋</button>
             </div>

@@ -169,11 +169,14 @@
       <div class="row g-4 align-items-stretch items-grid">
         <!-- Dynamic Items Loop -->
         <div class="col-6 col-md-4 col-lg-2-4" th:each="item : ${topBarangs}">
-          <article class="item-card tap-anim reveal-up h-100" th:data-max="${item.stock}">
+          <article class="item-card tap-anim reveal-up h-100"
+            th:classappend="${item.status != 'Tersedia'} ? ' item-disabled' : ''" th:data-max="${item.stock}">
             <div class="item-thumb">
               <img th:src="@{'/assets/guest/' + ${item.imageUrl}}" th:alt="${item.name}" class="img-fluid">
-              <span class="badge-status" th:text="${item.status}">Active</span>
-              <div class="qty-actions">
+              <span class="badge-status" th:text="${item.status == 'Tersedia' ? 'Active' : 'Inactive'}">Active</span>
+
+              <!-- Tampilkan tombol hanya jika Tersedia -->
+              <div class="qty-actions" th:if="${item.status == 'Tersedia'}">
                 <button type="button" class="qty-btn" data-action="inc">−</button>
                 <button type="button" class="qty-btn" data-action="dec">＋</button>
               </div>
@@ -204,11 +207,14 @@
       <div class="row g-4 align-items-stretch items-grid">
         <!-- Dynamic Items Loop -->
         <div class="col-6 col-md-4 col-lg-2-4" th:each="item : ${topRuangans}">
-          <article class="item-card tap-anim reveal-up h-100" data-type="ruang" th:data-max="${item.stock}">
+          <article class="item-card tap-anim reveal-up h-100" data-type="ruang"
+            th:classappend="${item.status != 'Tersedia'} ? ' item-disabled' : ''" th:data-max="${item.stock}">
             <div class="item-thumb">
               <img th:src="@{'/assets/guest/' + ${item.imageUrl}}" th:alt="${item.name}" class="img-fluid">
-              <span class="badge-status" th:text="${item.status}">Active</span>
-              <div class="qty-actions">
+              <span class="badge-status" th:text="${item.status == 'Tersedia' ? 'Active' : 'Inactive'}">Active</span>
+
+              <!-- Tampilkan tombol hanya jika Tersedia -->
+              <div class="qty-actions" th:if="${item.status == 'Tersedia'}">
                 <button type="button" class="qty-btn" data-action="inc">−</button>
                 <button type="button" class="qty-btn" data-action="dec">＋</button>
               </div>
