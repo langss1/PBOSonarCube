@@ -127,12 +127,20 @@ public class PengurusController {
         var peminjaman = peminjamanService.getPeminjamanById(id);
         if (peminjaman != null) {
             peminjaman.setStatus(PeminjamanStatus.APPROVED);
+
+            Laporan laporanToDelete = peminjaman.getLaporan();
+            if (laporanToDelete == null) {
+                // Fallback attempt to find independently if not loaded in entity graph
+                laporanToDelete = laporanRepository.findByPeminjamanId(id);
+            }
+
+            // CRITICAL: Break the association before saving Peminjaman
+            // because CascadeType.ALL on Peminjaman might re-save/persist the Laporan we want to delete
+            peminjaman.setLaporan(null);
             peminjamanService.save(peminjaman);
 
-            // Remove or Reset Laporan
-            var laporan = laporanRepository.findByPeminjamanId(id);
-            if (laporan != null) {
-                laporanRepository.delete(laporan);
+            if (laporanToDelete != null) {
+                laporanRepository.delete(laporanToDelete);
             }
         }
 
