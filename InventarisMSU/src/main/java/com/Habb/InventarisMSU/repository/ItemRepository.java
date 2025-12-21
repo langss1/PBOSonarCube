@@ -14,4 +14,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByType(ItemType type);
 
     List<Item> findTop4ByType(ItemType type);
+
+    long countByType(ItemType type);
 }

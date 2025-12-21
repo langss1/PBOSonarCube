@@ -21,9 +21,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User u = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User u = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
         // Role di entity kamu: enum Role (misal: PENGELOLA / PENGURUS)
         // Spring Security butuh authority: ROLE_PENGELOLA / ROLE_PENGURUS
@@ -35,7 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(authority));
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(u.getUsername())
+                .withUsername(u.getEmail())
                 .password(u.getPassword())
                 .authorities(authorities)
                 .accountExpired(false)

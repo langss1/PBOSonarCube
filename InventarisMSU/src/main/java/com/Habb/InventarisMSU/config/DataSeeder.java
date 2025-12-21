@@ -33,13 +33,13 @@ public class DataSeeder implements CommandLineRunner {
     private void seedUsers() {
         if (userRepository.count() == 0) {
             User pengelola = new User();
-            pengelola.setUsername("pengelola");
+            pengelola.setEmail("pengelola@msu.com");
             pengelola.setPassword(passwordEncoder.encode("password"));
             pengelola.setRole(Role.PENGELOLA);
             userRepository.save(pengelola);
 
             User pengurus = new User();
-            pengurus.setUsername("pengurus");
+            pengurus.setEmail("pengurus@msu.com");
             pengurus.setPassword(passwordEncoder.encode("password"));
             pengurus.setRole(Role.PENGURUS);
             userRepository.save(pengurus);
