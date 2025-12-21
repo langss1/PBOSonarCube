@@ -229,6 +229,16 @@
             <!-- FORM SUDAH TERHUBUNG BACKEND -->
             <form id="formTambah" class="row g-3 needs-validation" novalidate method="post"
               th:action="@{/pengelola/tambah}" enctype="multipart/form-data">
+              <!-- Nama -->
+              <div class="col-12">
+                <label class="form-label label-muted">Nama*</label>
+                <input id="inpNama" name="name" type="text" class="form-control pill"
+                  placeholder="Contoh: Proyektor / Ruang Tamu VIP" required />
+                <div class="invalid-feedback">
+                  Nama wajib diisi.
+                </div>
+              </div>
+
               <!-- Kategori -->
               <div class="col-12">
                 <label class="form-label label-muted">Kategori*</label>
@@ -251,16 +261,6 @@
                 <input type="hidden" id="inpKategori" name="type" required />
                 <div class="invalid-feedback">
                   Pilih kategori terlebih dahulu.
-                </div>
-              </div>
-
-              <!-- Nama -->
-              <div class="col-12">
-                <label class="form-label label-muted">Nama*</label>
-                <input id="inpNama" name="name" type="text" class="form-control pill"
-                  placeholder="Contoh: Proyektor / Ruang Tamu VIP" required />
-                <div class="invalid-feedback">
-                  Nama wajib diisi.
                 </div>
               </div>
 
