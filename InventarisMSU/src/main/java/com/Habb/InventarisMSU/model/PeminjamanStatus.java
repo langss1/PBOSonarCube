@@ -4,6 +4,7 @@ public enum PeminjamanStatus {
     PENDING,
     APPROVED,
     TAKEN,
+    RETURNED,
     REJECTED,
     COMPLETED
 }

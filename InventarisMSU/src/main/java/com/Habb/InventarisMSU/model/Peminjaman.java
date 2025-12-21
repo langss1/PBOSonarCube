@@ -8,6 +8,7 @@ import java.util.List;
 @Entity
 @Table(name = "peminjaman")
 public class Peminjaman {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,6 +38,9 @@ public class Peminjaman {
 
     private boolean handedOver;
     private boolean returned;
+
+    @OneToOne(mappedBy = "peminjaman", cascade = CascadeType.ALL)
+    private Laporan laporan;
 
     @OneToMany(mappedBy = "peminjaman", cascade = CascadeType.ALL)
     private List<PeminjamanDetail> details;
@@ -218,6 +222,14 @@ public class Peminjaman {
 
     public void setReturned(boolean returned) {
         this.returned = returned;
+    }
+
+    public Laporan getLaporan() {
+        return laporan;
+    }
+
+    public void setLaporan(Laporan laporan) {
+        this.laporan = laporan;
     }
 
     public List<PeminjamanDetail> getDetails() {
