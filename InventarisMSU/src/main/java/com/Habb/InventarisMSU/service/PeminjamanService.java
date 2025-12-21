@@ -40,20 +40,24 @@ public class PeminjamanService {
 
     @org.springframework.transaction.annotation.Transactional
     public void updateStatus(Long id, PeminjamanStatus status) {
+        updateStatus(id, status, null);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void updateStatus(Long id, PeminjamanStatus status, String reason) {
         System.out.println("DEBUG: Updating status for ID " + id + " to " + status);
         Peminjaman p = getPeminjamanById(id);
         if (p != null) {
             System.out.println("DEBUG: Found peminjaman. Current status: " + p.getStatus());
-            // Logic for stock deduction/restoration based on status transition
-            // Logic for stock deduction/restoration REMOVED.
-            // Stock in 'items' table represents Total Assets and should not change with
-            // bookings.
-            // Availability is calculated dynamically in PeminjamanController.
 
             if (status == PeminjamanStatus.TAKEN) {
                 p.setHandedOver(true);
             } else if (status == PeminjamanStatus.COMPLETED) {
                 p.setReturned(true);
+            }
+
+            if (reason != null && !reason.trim().isEmpty()) {
+                p.setReason(reason);
             }
 
             p.setStatus(status);

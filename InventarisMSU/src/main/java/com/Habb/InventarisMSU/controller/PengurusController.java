@@ -93,9 +93,20 @@ public class PengurusController {
                         laporan.setPickedUpAt(now);
                     }
 
+                    // Check for Lateness
+                    LocalDateTime deadline = LocalDateTime.of(peminjaman.getEndDate(), peminjaman.getEndTime() != null ? peminjaman.getEndTime() : java.time.LocalTime.MAX);
+                    if (now.isAfter(deadline)) {
+                        peminjaman.setStatus(PeminjamanStatus.OVERDUE);
+                        // Status set to OVERDUE for report, but feedback to Pengurus remains generic
+                        redirectAttributes.addFlashAttribute("successMessage",
+                                "Fasilitas berhasil dikembalikan. Silakan cek Riwayat untuk finalisasi laporan.");
+                    } else {
+                        // Default logic
+                        redirectAttributes.addFlashAttribute("successMessage",
+                                "Fasilitas berhasil dikembalikan. Silakan cek Riwayat untuk finalisasi laporan.");
+                    }
+
                     laporanRepository.save(laporan);
-                    redirectAttributes.addFlashAttribute("successMessage",
-                            "Fasilitas berhasil dikembalikan. Silakan cek Riwayat untuk finalisasi laporan.");
                 }
             }
         } catch (Exception e) {
@@ -109,11 +120,12 @@ public class PengurusController {
     @GetMapping("/riwayat")
     public String riwayat(Model model) {
         var all = peminjamanService.getAllPeminjaman();
-        // Filter for COMPLETED, REJECTED, TAKEN, or RETURNED
+        // Filter for COMPLETED, REJECTED, TAKEN, RETURNED, or OVERDUE
         var history = all.stream()
                 .filter(p -> p.getStatus() == PeminjamanStatus.COMPLETED
                 || p.getStatus() == PeminjamanStatus.TAKEN
-                || p.getStatus() == PeminjamanStatus.RETURNED)
+                || p.getStatus() == PeminjamanStatus.RETURNED
+                || p.getStatus() == PeminjamanStatus.OVERDUE)
                 .sorted((p1, p2) -> p2.getId().compareTo(p1.getId())) // Newest first
                 .toList();
         model.addAttribute("historyLoans", history);
@@ -151,27 +163,40 @@ public class PengurusController {
 
     @PostMapping("/riwayat/submit")
     public String submitReport(@RequestParam("id") Long id,
+            @RequestParam(value = "lateReason", required = false) String lateReason,
             RedirectAttributes redirectAttributes) {
 
         var peminjaman = peminjamanService.getPeminjamanById(id);
         if (peminjaman != null) {
-            // Update Status to COMPLETED
-            peminjaman.setStatus(PeminjamanStatus.COMPLETED);
+            // Check if it was OVERDUE, keep it OVERDUE. Else COMPLETED.
+            if (peminjaman.getStatus() != PeminjamanStatus.OVERDUE) {
+                peminjaman.setStatus(PeminjamanStatus.COMPLETED);
+            } else {
+                // If overdue and reason provided, save it
+                if (lateReason != null && !lateReason.trim().isEmpty()) {
+                    peminjaman.setReason(lateReason);
+                }
+            }
+
             peminjamanService.save(peminjaman);
 
             var laporan = laporanRepository.findByPeminjamanId(id);
-            if (laporan != null) {
-                laporan.setSubmitted(true);
-                laporanRepository.save(laporan);
-            } else {
+            if (laporan == null) {
                 laporan = new Laporan();
                 laporan.setPeminjaman(peminjaman);
-                laporan.setSubmitted(true);
-                laporanRepository.save(laporan);
             }
+
+            laporan.setSubmitted(true);
+
+            // Save late reason to Laporan notes
+            if (peminjaman.getStatus() == PeminjamanStatus.OVERDUE && lateReason != null && !lateReason.trim().isEmpty()) {
+                laporan.setNotes(lateReason);
+            }
+
+            laporanRepository.save(laporan);
         }
 
-        redirectAttributes.addFlashAttribute("successMessage", "Laporan peminjaman berhasil dikirim (Completed).");
+        redirectAttributes.addFlashAttribute("successMessage", "Laporan peminjaman berhasil dikirim.");
         return "redirect:/pengurus/riwayat";
     }
 }

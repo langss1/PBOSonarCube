@@ -265,8 +265,8 @@
                                     </ul>
                                 </td>
                                 <td>
-                                    <div class="fw-semibold text-dark" style="font-size: 0.9rem;"
-                                        th:text="${p.reason}">Kegiatan</div>
+                                    <div class="fw-semibold text-dark" style="font-size: 0.9rem;" th:text="${p.reason}">
+                                        Kegiatan</div>
                                     <div class="small text-muted mt-1">
                                         <i class="bi bi-geo-alt me-1 text-danger"></i><span
                                             th:text="${p.location}">Lokasi</span>
@@ -309,8 +309,9 @@
                                     </div>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a th:if="${p.documentPath != null}" th:href="@{'/' + ${#strings.replace(p.documentPath, '\', '/')}}"
-                                        target="_blank" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                                    <a th:if="${p.documentPath != null}"
+                                        th:href="@{'/' + ${#strings.replace(p.documentPath, '\', '/')}}" target="_blank"
+                                        class="btn btn-outline-primary btn-sm px-3 rounded-pill">
                                         <i class="bi bi-file-earmark-pdf me-1"></i>PDF
                                     </a>
                                     <span th:unless="${p.documentPath != null}"
@@ -379,25 +380,29 @@
                                 <td>
                                     <div class="d-flex flex-column small">
                                         <span>
-                                            <span class="fw-medium" th:text="${#temporals.format(h.startDate, 'dd MMM yyyy')}"></span>
-                                            <span class="text-muted" th:if="${h.startTime != null}" th:text="' (' + ${h.startTime} + ')'"></span>
+                                            <span class="fw-medium"
+                                                th:text="${#temporals.format(h.startDate, 'dd MMM yyyy')}"></span>
+                                            <span class="text-muted" th:if="${h.startTime != null}"
+                                                th:text="' (' + ${h.startTime} + ')'"></span>
                                         </span>
                                         <span class="text-muted" style="line-height: 1;">s/d</span>
                                         <span>
-                                            <span class="fw-medium" th:text="${#temporals.format(h.endDate, 'dd MMM yyyy')}"></span>
-                                            <span class="text-muted" th:if="${h.endTime != null}" th:text="' (' + ${h.endTime} + ')'"></span>
+                                            <span class="fw-medium"
+                                                th:text="${#temporals.format(h.endDate, 'dd MMM yyyy')}"></span>
+                                            <span class="text-muted" th:if="${h.endTime != null}"
+                                                th:text="' (' + ${h.endTime} + ')'"></span>
                                         </span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span th:if="${h.status.name() == 'APPROVED'}"
+                                    <span
+                                        th:if="${h.status.name() == 'APPROVED' or h.status.name() == 'TAKEN' or h.status.name() == 'RETURNED' or h.status.name() == 'COMPLETED'}"
                                         class="badge badge-status badge-approved">DISETUJUI</span>
                                     <span th:if="${h.status.name() == 'REJECTED'}"
                                         class="badge badge-status badge-rejected">DITOLAK</span>
-                                    <span th:if="${h.status.name() == 'COMPLETED'}"
-                                        class="badge badge-status badge-completed">SELESAI</span>
                                 </td>
-                                <td class="small text-muted text-break" style="max-width: 150px;" th:text="${h.reason != null ? h.reason : '-'}"></td>
+                                <td class="small text-muted text-break" style="max-width: 150px;"
+                                    th:text="${h.reason != null ? h.reason : '-'}"></td>
                                 <td class="text-center">
                                     <a th:href="@{/pengelola/cetak(id=${h.id})}" target="_blank"
                                         class="btn btn-light border btn-sm shadow-sm" title="Cetak Bukti">

@@ -68,7 +68,7 @@ public class PengelolaController {
     public String updateStatus(@RequestParam("id") Long id, @RequestParam("status") String statusStr,
             @RequestParam(value = "reason", required = false) String reason) {
         PeminjamanStatus status = PeminjamanStatus.valueOf(statusStr);
-        peminjamanService.updateStatus(id, status);
+        peminjamanService.updateStatus(id, status, reason);
         return "redirect:/pengelola/approval";
     }
 
@@ -83,15 +83,18 @@ public class PengelolaController {
     @GetMapping("/laporan")
     public String laporan(Model model) {
         // Fetch all data for the table
-        List<Peminjaman> list = peminjamanRepository.findAll();
-        // Sort specifically if needed, but for now findAll matches seeder order if
-        // inserted sequentially
-        model.addAttribute("listPeminjaman", list);
+        // Fetch all data for the table
+        List<Peminjaman> all = peminjamanRepository.findAll();
+        // Filter out REJECTED and PENDING status as requested
+        List<Peminjaman> filtered = all.stream()
+                .filter(p -> p.getStatus() != PeminjamanStatus.REJECTED && p.getStatus() != PeminjamanStatus.PENDING)
+                .toList();
+
+        model.addAttribute("listPeminjaman", filtered);
         return "pengelola/laporan";
     }
 
     // --- REPORT DOWNLOAD ENDPOINTS ---
-
     @GetMapping("/laporan/download/csv")
     public org.springframework.http.ResponseEntity<byte[]> downloadCsv() {
         byte[] data = reportService.generateCsv();

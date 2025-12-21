@@ -219,7 +219,7 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2" style="font-size: 0.9rem;">
                                     <div
-                                        th:if="${(p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED') and p.laporan != null and p.laporan.returnedAt != null}">
+                                        th:if="${(p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED' or p.status.name() == 'OVERDUE') and p.laporan != null and p.laporan.returnedAt != null}">
                                         <span th:text="${#temporals.format(p.laporan.returnedAt, 'dd MMM yyyy')}"
                                             class="text-secondary"></span>
                                         <span class="text-dark fw-bold">|</span>
@@ -227,7 +227,7 @@
                                             class="text-primary fw-semibold"></span>
                                     </div>
                                     <div
-                                        th:unless="${(p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED') and p.laporan != null and p.laporan.returnedAt != null}">
+                                        th:unless="${(p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED' or p.status.name() == 'OVERDUE') and p.laporan != null and p.laporan.returnedAt != null}">
                                         <span class="fw-bold text-muted">-</span>
                                     </div>
                                 </div>
@@ -245,7 +245,7 @@
                             <!-- CANCEL BUTTON -->
                             <td class="text-center" th:with="isSubmitted=${p.laporan != null and p.laporan.submitted}">
                                 <form
-                                    th:if="${!isSubmitted and (p.status.name() == 'TAKEN' or p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED')}"
+                                    th:if="${!isSubmitted and (p.status.name() == 'TAKEN' or p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED' or p.status.name() == 'OVERDUE')}"
                                     class="cancel-form" th:action="@{/pengurus/riwayat/cancel}" method="post">
                                     <input type="hidden" name="id" th:value="${p.id}" />
                                     <!-- Use type='button' to prevent auto-submit, JS handles it -->
@@ -268,10 +268,10 @@
                             <!-- SUBMIT BUTTON -->
                             <td class="text-center" th:with="isSubmitted=${p.laporan != null and p.laporan.submitted}">
                                 <form
-                                    th:if="${!isSubmitted and (p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED')}"
+                                    th:if="${!isSubmitted and (p.status.name() == 'RETURNED' or p.status.name() == 'COMPLETED' or p.status.name() == 'OVERDUE')}"
                                     class="submit-form" th:action="@{/pengurus/riwayat/submit}" method="post">
                                     <input type="hidden" name="id" th:value="${p.id}" />
-                                    <button type="button"
+                                    <button type="button" th:data-overdue="${p.status.name() == 'OVERDUE'}"
                                         class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 btn-submit"
                                         style="min-width: 80px;">
                                         <i class="bi bi-send me-1"></i> Kirim
@@ -375,24 +375,80 @@
                 });
             });
 
-            // Handle Submit Button SweetAlert
+            // Handle Submit Button Logic
             document.querySelectorAll('.btn-submit').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const form = this.closest('form');
-                    Swal.fire({
-                        title: 'Selesaikan Peminjaman?', // Image 5: User calls this "Submit" but modal says "Selesaikan Peminjaman?"
-                        text: "Data akan disimpan permanen sebagai selesai.",
-                        icon: 'question', // Question mark
-                        showCancelButton: true,
-                        confirmButtonColor: '#198754', // Green
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Ya, Selesaikan',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
+                    const isOverdue = this.getAttribute('data-overdue') === 'true';
+
+                    if (isOverdue) {
+                        // Open Late Reason Modal
+                        const modal = new bootstrap.Modal(document.getElementById('lateReasonModal'));
+                        const confirmBtn = document.getElementById('btnConfirmLate');
+                        const inputReason = document.getElementById('lateReasonInput');
+
+                        // Clear previous input
+                        inputReason.value = '';
+
+                        // Handler for modal confirm button
+                        confirmBtn.onclick = function () {
+                            const reason = inputReason.value.trim();
+                            if (!reason) {
+                                alert("Alasan keterlambatan wajib diisi!");
+                                return;
+                            }
+
+                            modal.hide();
+
+                            // Insert hidden input for reason into the form
+                            let hiddenInput = form.querySelector('input[name="lateReason"]');
+                            if (!hiddenInput) {
+                                hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = 'lateReason';
+                                form.appendChild(hiddenInput);
+                            }
+                            hiddenInput.value = reason;
+
+                            // Show standard confirmation
+                            Swal.fire({
+                                title: 'Alasan sudah sesuai?',
+                                text: "Pastikan alasan keterlambatan sudah benar sebelum mengirim.",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#198754',
+                                cancelButtonColor: '#6c757d',
+                                confirmButtonText: 'Ya, Kirim',
+                                cancelButtonText: 'Batal'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                } else {
+                                    // Re-open modal if they cancel? Or just close? User workflow implies simply confirming reason.
+                                    // If cancelled here, user can click Kirim again.
+                                }
+                            });
+                        };
+
+                        modal.show();
+
+                    } else {
+                        // Normal Flow
+                        Swal.fire({
+                            title: 'Selesaikan Peminjaman?',
+                            text: "Data akan disimpan permanen sebagai selesai.",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#198754',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Ya, Selesaikan',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    }
                 });
             });
 
@@ -412,6 +468,33 @@
             }
         });
     </script>
+
+    <!-- Modal Alasan Terlambat -->
+    <div class="modal fade" id="lateReasonModal" tabindex="-1" aria-labelledby="lateReasonModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h1 class="modal-title fs-5 fw-bold text-danger" id="lateReasonModalLabel">Keterlambatan Terdeteksi
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">Fasilitas ini dikembalikan melewati batas waktu. Harap masukkan
+                        alasan keterlambatan.</p>
+                    <div class="mb-3">
+                        <label for="lateReasonInput" class="form-label fw-semibold">Alasan Terlambat</label>
+                        <textarea class="form-control" id="lateReasonInput" rows="3"
+                            placeholder="Contoh: Macet, lupa, atau kendala teknis..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4" id="btnConfirmLate">Lanjut</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 
