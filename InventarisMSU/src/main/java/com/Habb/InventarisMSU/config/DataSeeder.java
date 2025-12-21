@@ -82,17 +82,21 @@ public class DataSeeder implements CommandLineRunner {
         createItemIfNotExists("Speaker Portable", ItemType.BARANG, 4, "speaker.jpeg",
                 "Speaker portable dengan baterai");
         createItemIfNotExists("Speaker", ItemType.BARANG, 5, "speaker.jpeg", "Speaker standar");
-        createItemIfNotExists("Meja Kayu", ItemType.BARANG, 10, "meja_kayu.jpeg", "Meja Kayu");
-        createItemIfNotExists("Hijab", ItemType.BARANG, 20, "hijab.jpeg", "Pembatas Hijab");
-        createItemIfNotExists("Sofa", ItemType.BARANG, 3, "sofa.jpeg", "Sofa Tamu");
-        createItemIfNotExists("Akun Zoom MSU", ItemType.BARANG, 1, "zoom.png", "Akun Zoom Premium");
-        createItemIfNotExists("Meja", ItemType.BARANG, 10, "meja_biasa.jpeg", "Meja Biasa");
-        createItemIfNotExists("VIP4", ItemType.BARANG, 10, "c99ea443-e84b-4e32-bdb6-1fb98d0c4757.jpeg", "21");
+
+        // Fallback images for missing assets:
+        createItemIfNotExists("Meja Kayu", ItemType.BARANG, 10, "meja.jpeg", "Meja Kayu"); // Use meja.jpeg
+        createItemIfNotExists("Hijab", ItemType.BARANG, 20, "tikar.jpeg", "Pembatas Hijab"); // Use tikar.jpeg
+                                                                                             // placeholder
+        createItemIfNotExists("Sofa", ItemType.BARANG, 3, "kursi.jpeg", "Sofa Tamu"); // Use kursi.jpeg placeholder
+        createItemIfNotExists("Akun Zoom MSU", ItemType.BARANG, 1, "loogoo.png", "Akun Zoom Premium"); // Use logo
+        createItemIfNotExists("Meja", ItemType.BARANG, 10, "meja.jpeg", "Meja Biasa");
+
+        // Removed junk data (VIP4)
 
         // Ruangan / Fasilitas
-        createItemIfNotExists("Tidur", ItemType.RUANGAN, 12, "plaza.jpeg", "4");
-        createItemIfNotExists("Aula Utama", ItemType.RUANGAN, 1, "plaza.jpeg",
-                "Aula utama untuk kegiatan besar");
+        // All rooms default to plaza.jpeg since specific room images are missing in
+        // assets
+        createItemIfNotExists("Aula Utama", ItemType.RUANGAN, 1, "plaza.jpeg", "Aula utama untuk kegiatan besar");
         createItemIfNotExists("Ruang Rapat A", ItemType.RUANGAN, 2, "plaza.jpeg", "Ruang rapat kecil A");
         createItemIfNotExists("Ruang Rapat B", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang rapat kecil B");
         createItemIfNotExists("Ruang Kajian", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang untuk kajian rutin");
@@ -102,11 +106,12 @@ public class DataSeeder implements CommandLineRunner {
         createItemIfNotExists("Kelas 3", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Kelas 3");
         createItemIfNotExists("Kelas 4", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Kelas 4");
         createItemIfNotExists("Perpustakaan", ItemType.RUANGAN, 1, "plaza.jpeg", "Perpustakaan umum");
-        createItemIfNotExists("Ruang Utama", ItemType.RUANGAN, 1, "ruang_utama.jpeg", "Ruang Utama Masjid");
-        createItemIfNotExists("Pelataran Masjid", ItemType.RUANGAN, 1, "pelataran.jpeg", "Pelataran Masjid");
-        createItemIfNotExists("Selasar Selatan", ItemType.RUANGAN, 1, "selasar.jpeg", "Selasar Selatan");
-        createItemIfNotExists("Lantai 2 Timur", ItemType.RUANGAN, 1, "lantai2.jpeg", "Lantai 2 Timur");
-        createItemIfNotExists("Ruang Tamu VIP", ItemType.RUANGAN, 1, "vip.jpeg", "Ruang Tamu VIP");
+
+        createItemIfNotExists("Ruang Utama", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Utama Masjid");
+        createItemIfNotExists("Pelataran Masjid", ItemType.RUANGAN, 1, "plaza.jpeg", "Pelataran Masjid");
+        createItemIfNotExists("Selasar Selatan", ItemType.RUANGAN, 1, "plaza.jpeg", "Selasar Selatan");
+        createItemIfNotExists("Lantai 2 Timur", ItemType.RUANGAN, 1, "plaza.jpeg", "Lantai 2 Timur");
+        createItemIfNotExists("Ruang Tamu VIP", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Tamu VIP");
     }
 
     private void createItemIfNotExists(String name, ItemType type, int stock, String imageUrl, String description) {
