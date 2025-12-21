@@ -163,15 +163,17 @@
   </nav>
 
   <!-- HERO -->
-  <section class="d-flex justify-content-center align-items-start position-relative w-100" style="
+  <section class="d-flex justify-content-center align-items-center position-relative w-100" style="
         padding-top: 55px;
-        height: 70vh;
-        background-size: contain;
+        min-height: 60vh;
+        background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
       " th:styleappend="'background-image: url(' + @{/assets/pengelola/aset/ramadhan.png} + ');'">
-    <img th:src="@{/assets/pengelola/aset/MSU.png}" alt="Syamsul Ulum" class="img-fluid shadow-strong rounded-3 mt-5"
-      style="height: 230px; width: 1100px; z-index: 2" />
+    <div class="container text-center">
+      <img th:src="@{/assets/pengelola/aset/MSU.png}" alt="Syamsul Ulum" class="img-fluid shadow-strong rounded-3 mt-5"
+        style="max-width: 100%; height: auto; width: 1100px; z-index: 2" />
+    </div>
   </section>
 
   <div class="container">
