@@ -50,11 +50,19 @@ public class PengurusController {
 
     @PostMapping("/fasilitas/update-status")
     public String updateStatus(@RequestParam("id") Long id,
-            @RequestParam("action") String action) {
-        System.out.println("DEBUG: Received update request for ID: " + id + ", Action: " + action);
+            @RequestParam("action") String action,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         var status = com.Habb.InventarisMSU.model.PeminjamanStatus.valueOf(action);
-        // Action should be TAKEN or COMPLETED
         peminjamanService.updateStatus(id, status);
+
+        if (status == com.Habb.InventarisMSU.model.PeminjamanStatus.TAKEN) {
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Fasilitas berhasil diambil. Jangan lupa mintakan kartu identitas sebagai bukti peminjaman");
+        } else if (status == com.Habb.InventarisMSU.model.PeminjamanStatus.COMPLETED) {
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
+        }
+
         return "redirect:/pengurus/fasilitas";
     }
 
@@ -72,9 +80,21 @@ public class PengurusController {
     }
 
     @PostMapping("/riwayat/cancel")
-    public String cancelStatus(@RequestParam("id") Long id) {
+    public String cancelStatus(@RequestParam("id") Long id,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         // Only revert if status is COMPLETED -> TAKEN (logic: undone return)
         peminjamanService.updateStatus(id, com.Habb.InventarisMSU.model.PeminjamanStatus.TAKEN);
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Status peminjaman berhasil dibatalkan. Data dikembalikan ke Dashboard.");
+        return "redirect:/pengurus/riwayat";
+    }
+
+    @PostMapping("/riwayat/submit")
+    public String submitReport(@RequestParam("id") Long id,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        // Logic for "Submit" (e.g., mark as REPORTED or just notification)
+        // Since no new status requested, we just show notification
+        redirectAttributes.addFlashAttribute("successMessage", "Laporan peminjaman berhasil dikirim.");
         return "redirect:/pengurus/riwayat";
     }
 }
