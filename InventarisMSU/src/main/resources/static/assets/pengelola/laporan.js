@@ -176,28 +176,43 @@ window.addEventListener("load", () => {
   // First render
   filterTable();
 
-  // Chart dummy
+  // Chart dummy REPLACED with REAL DATA aggregation
   const ctx = document.getElementById("chartTop");
   if (ctx && window.Chart) {
+    // 1. Aggregate data from window.serverData
+    const agg = {};
+    const sourceData = window.serverData || [];
+    
+    sourceData.forEach(item => {
+        const n = item.name;
+        const q = item.qty || 0;
+        if(!agg[n]) agg[n] = 0;
+        agg[n] += q;
+    });
+
+    // 2. Convert to array and sort
+    const sorted = Object.keys(agg).map(key => {
+        return { name: key, qty: agg[key] };
+    }).sort((a,b) => b.qty - a.qty);
+
+    // 3. Take Top 10
+    const top10 = sorted.slice(0, 10);
+    
+    // 4. Map to arrays
+    const chartLabels = top10.map(i => i.name);
+    const chartData = top10.map(i => i.qty);
+
     new Chart(ctx, {
       type: "bar",
       data: {
-        labels: [
-          "Proyektor",
-          "Meja",
-          "Speaker",
-          "Terpal",
-          "Sofa",
-          "Hijab",
-          "Ruang Utama",
-          "Selasar",
-          "Zoom",
-          "Ruang VIP",
-        ],
+        labels: chartLabels,
         datasets: [
           {
             label: "Dipinjam",
-            data: [12, 10, 9, 8, 7, 6, 5, 4, 3, 2],
+            data: chartData,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
           },
         ],
       },
