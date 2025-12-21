@@ -179,6 +179,147 @@ window.MSUDates = (function () {
     setTimeout(() => window.checkRealTimeStock(true), 300);
   }
 
+  // ====== Date Validation Logic ======
+  function getFormattedDateTime() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    return {
+      date: `${yyyy}-${mm}-${dd}`,
+      time: `${hh}:${min}`,
+      fullDate: now
+    };
+  }
+
+  function validateInputs() {
+    if (!dateStartEl || !timeStartEl || !dateEndEl || !timeEndEl) return true;
+
+    const current = getFormattedDateTime();
+    const now = new Date();
+
+    // 1. Validate Start Date vs Today
+    if (dateStartEl.value && dateStartEl.value < current.date) {
+      showToastInfo("Tanggal sudah lewat. Diganti ke hari ini.");
+      dateStartEl.value = current.date;
+    }
+
+    // 2. Validate Start Time vs Now (if today)
+    if (dateStartEl.value === current.date && timeStartEl.value) {
+      const selectedStart = new Date(`${dateStartEl.value}T${timeStartEl.value}`);
+      // Allow 1 minute buffer or strict? Strict.
+      if (selectedStart < now) {
+        showToastInfo("Waktu sudah lewat. Harap pilih waktu yang akan datang.");
+        timeStartEl.value = current.time;
+      }
+    }
+
+    // 3. Validate End Date vs Start Date
+    if (dateEndEl.value && dateStartEl.value && dateEndEl.value < dateStartEl.value) {
+      showToastInfo("Tanggal kembali tidak boleh sebelum tanggal pakai.");
+      dateEndEl.value = dateStartEl.value;
+    }
+
+    // 4. Validate End Time vs Start Time
+    if (dateStartEl.value && timeStartEl.value && dateEndEl.value && timeEndEl.value) {
+      const startDT = new Date(`${dateStartEl.value}T${timeStartEl.value}`);
+      const endDT = new Date(`${dateEndEl.value}T${timeEndEl.value}`);
+
+      if (endDT <= startDT) {
+        showToastInfo("Waktu selesai harus setelah waktu mulai.");
+        // Reset end time to start time + 1 hour? Or just clear?
+        // Let's just clear or set to start + 1h
+        // Simple: clear it to force user to pick again
+        timeEndEl.value = '';
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function setupDateTimeValidation() {
+    if (!dateStartEl || !timeStartEl || !dateEndEl || !timeEndEl) return;
+
+    const current = getFormattedDateTime();
+
+    // 1. Set Min Date for Start Date (Today)
+    dateStartEl.min = current.date;
+
+    function onStartChange() {
+      // Enforce Min Date
+      if (dateStartEl.value < current.date) dateStartEl.value = current.date;
+
+      // If Today, Enforce Min Time
+      if (dateStartEl.value === current.date) {
+        const fresh = getFormattedDateTime();
+        timeStartEl.min = fresh.time;
+
+        // If cur val < min
+        if (timeStartEl.value && timeStartEl.value < fresh.time) {
+          timeStartEl.value = fresh.time;
+        }
+      } else {
+        timeStartEl.removeAttribute('min');
+      }
+
+      // Update End Date Min
+      if (dateStartEl.value) {
+        dateEndEl.min = dateStartEl.value;
+        if (dateEndEl.value < dateStartEl.value) dateEndEl.value = dateStartEl.value;
+      }
+      validateInputs();
+    }
+
+    function onTimeStartChange() {
+      validateInputs();
+      // Update End Time Min if same day
+      if (dateEndEl.value === dateStartEl.value && timeStartEl.value) {
+        timeEndEl.min = timeStartEl.value;
+      }
+    }
+
+    // Listener for Start Date
+    dateStartEl.addEventListener('change', onStartChange);
+    dateStartEl.addEventListener('blur', onStartChange);
+
+    // Listener for End Date
+    dateEndEl.addEventListener('change', () => {
+      if (dateStartEl.value && dateEndEl.value < dateStartEl.value) {
+        dateEndEl.value = dateStartEl.value;
+      }
+      validateInputs();
+    });
+
+    // Listener for Start Time
+    timeStartEl.addEventListener('change', onTimeStartChange);
+    timeStartEl.addEventListener('blur', onTimeStartChange);
+
+    // Listener for End Time
+    timeEndEl.addEventListener('change', validateInputs);
+    timeEndEl.addEventListener('blur', validateInputs);
+
+    // Initial check
+    if (dateStartEl.value === current.date) {
+      timeStartEl.min = current.time;
+    }
+    if (dateStartEl.value) {
+      dateEndEl.min = dateStartEl.value;
+    }
+  }
+
+  // Run validation setup
+  setupDateTimeValidation();
+
+  // Override checkRealTimeStock to validate first
+  const originalCheck = window.checkRealTimeStock;
+  window.checkRealTimeStock = async function (isAuto) {
+    if (!validateInputs()) return;
+    if (typeof originalCheck === 'function') await originalCheck(isAuto);
+  };
+
+
 })();
 
 // ====== Setup stok awal ======

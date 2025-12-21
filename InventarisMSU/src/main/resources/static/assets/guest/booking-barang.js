@@ -708,7 +708,158 @@ async function checkRealtimeAvailability() {
     }
 }
 
-// Add listeners
+// Helper to format date/time to ISO string components
+function getFormattedDateTime() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    return {
+        date: `${yyyy}-${mm}-${dd}`,
+        time: `${hh}:${min}`,
+        fullDate: now
+    };
+}
+
+function validateInputs(startD, startT, endD, endT) {
+    if (!startD || !startT || !endD || !endT) return true;
+
+    const current = getFormattedDateTime();
+    const now = new Date();
+
+    // 1. Validate Start Date vs Today
+    if (startD.value && startD.value < current.date) {
+        startD.value = current.date;
+        alert("Tanggal sudah lewat. Diganti ke hari ini.");
+    }
+
+    // 2. Validate Start Time vs Now (if today)
+    if (startD.value === current.date && startT.value) {
+        const selectedStart = new Date(`${startD.value}T${startT.value}`);
+        if (selectedStart < now) {
+            alert("Waktu sudah lewat. Harap pilih waktu yang akan datang.");
+            startT.value = current.time;
+        }
+    }
+
+    // 3. Validate End Date vs Start Date
+    if (endD.value && startD.value && endD.value < startD.value) {
+        alert("Tanggal kembali tidak boleh sebelum tanggal pakai.");
+        endD.value = startD.value;
+    }
+
+    // 4. Validate End Time vs Start Time
+    if (startD.value && startT.value && endD.value && endT.value) {
+        const startDT = new Date(`${startD.value}T${startT.value}`);
+        const endDT = new Date(`${endD.value}T${endT.value}`);
+
+        if (endDT <= startDT) {
+            alert("Waktu selesai harus setelah waktu mulai.");
+            endT.value = '';
+            return false;
+        }
+    }
+    return true;
+}
+
+function setupDateTimeValidation() {
+    const startD = document.getElementById('startDate');
+    const startT = document.getElementById('startTime');
+    const endD = document.getElementById('endDate');
+    const endT = document.getElementById('endTime');
+
+    if (!startD || !startT || !endD || !endT) return;
+
+    const current = getFormattedDateTime();
+
+    // 1. Set Min Date for Start Date (Today)
+    startD.min = current.date;
+
+    function updateEndConstraints() {
+        let baseDate = startD.value;
+        if (!baseDate || baseDate < current.date) {
+            baseDate = current.date;
+        }
+        // Set min date for End Date
+        endD.min = baseDate;
+
+        // If current End Date is invalid (before min), reset it
+        if (endD.value && endD.value < baseDate) {
+            endD.value = baseDate;
+        }
+
+        // Handle Time constraints if dates are equal
+        if (endD.value === startD.value) {
+            if (startT.value) {
+                endT.min = startT.value;
+            } else {
+                if (startD.value === current.date) {
+                    endT.min = current.time;
+                } else {
+                    endT.removeAttribute('min');
+                }
+            }
+        } else {
+            endT.removeAttribute('min');
+        }
+    }
+
+    function onStartChange() {
+        if (startD.value && startD.value < current.date) {
+            startD.value = current.date;
+            alert("Tanggal sudah lewat. Diganti ke hari ini.");
+        }
+
+        if (startD.value === current.date) {
+            const fresh = getFormattedDateTime();
+            startT.min = fresh.time;
+            if (startT.value && startT.value < fresh.time) {
+                startT.value = fresh.time;
+            }
+        } else {
+            startT.removeAttribute('min');
+        }
+
+        updateEndConstraints();
+        validateInputs(startD, startT, endD, endT);
+    }
+
+    function onTimeStartChange() {
+        updateEndConstraints();
+        validateInputs(startD, startT, endD, endT);
+    }
+
+    // Listener for Start Date
+    startD.addEventListener('change', onStartChange);
+    startD.addEventListener('blur', onStartChange);
+
+    // Listener for End Date
+    endD.addEventListener('change', () => {
+        updateEndConstraints();
+        validateInputs(startD, startT, endD, endT);
+    });
+
+    // Listener for Start Time
+    startT.addEventListener('change', onTimeStartChange);
+    startT.addEventListener('blur', onTimeStartChange);
+
+    // End Time
+    endT.addEventListener('change', () => validateInputs(startD, startT, endD, endT));
+    endT.addEventListener('blur', () => validateInputs(startD, startT, endD, endT));
+
+
+    // Initial check
+    updateEndConstraints();
+    if (startD.value === current.date) {
+        startT.min = current.time;
+    }
+}
+
+// Call it
+setupDateTimeValidation();
+
 [startDateEl, startTimeEl, endDateEl, endTimeEl].forEach(el => {
     el?.addEventListener('change', checkRealtimeAvailability);
 });
