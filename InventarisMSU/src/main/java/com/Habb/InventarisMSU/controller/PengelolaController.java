@@ -68,7 +68,7 @@ public class PengelolaController {
     public String updateStatus(@RequestParam("id") Long id, @RequestParam("status") String statusStr,
             @RequestParam(value = "reason", required = false) String reason) {
         PeminjamanStatus status = PeminjamanStatus.valueOf(statusStr);
-        peminjamanService.updateStatus(id, status);
+        peminjamanService.updateStatus(id, status, reason);
         return "redirect:/pengelola/approval";
     }
 
