@@ -42,29 +42,10 @@ public class PeminjamanService {
         if (p != null) {
             System.out.println("DEBUG: Found peminjaman. Current status: " + p.getStatus());
             // Logic for stock deduction/restoration based on status transition
-            if (status == PeminjamanStatus.APPROVED && p.getStatus() != PeminjamanStatus.APPROVED) {
-                // Deduct stock
-                for (com.Habb.InventarisMSU.model.PeminjamanDetail detail : p.getDetails()) {
-                    com.Habb.InventarisMSU.model.Item item = detail.getItem();
-                    // Assuming quantity is available quantity, check if sufficient
-                    if (item.getStock() >= detail.getQuantity()) {
-                        item.setStock(item.getStock() - detail.getQuantity());
-                        itemRepository.save(item);
-                    } else {
-                        item.setStock(Math.max(0, item.getStock() - detail.getQuantity()));
-                        itemRepository.save(item);
-                    }
-                }
-            } else if ((status == PeminjamanStatus.REJECTED || status == PeminjamanStatus.COMPLETED)
-                    && (p.getStatus() == PeminjamanStatus.APPROVED || p.getStatus() == PeminjamanStatus.TAKEN)) {
-                // Return stock if it was previously approved/taken and now is rejected or
-                // completed
-                for (com.Habb.InventarisMSU.model.PeminjamanDetail detail : p.getDetails()) {
-                    com.Habb.InventarisMSU.model.Item item = detail.getItem();
-                    item.setStock(item.getStock() + detail.getQuantity());
-                    itemRepository.save(item);
-                }
-            }
+            // Logic for stock deduction/restoration REMOVED.
+            // Stock in 'items' table represents Total Assets and should not change with
+            // bookings.
+            // Availability is calculated dynamically in PeminjamanController.
 
             if (status == PeminjamanStatus.TAKEN) {
                 p.setHandedOver(true);

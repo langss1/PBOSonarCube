@@ -40,7 +40,7 @@ public class DataSeeder implements CommandLineRunner {
                 try {
                         seedUsers();
                         seedItems();
-                        seedPeminjaman();
+                        // seedPeminjaman();
                 } catch (Exception e) {
                         e.printStackTrace();
                         System.err.println("ERROR IN DATA SEEDER: " + e.getMessage());
@@ -64,12 +64,12 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         private void seedItems() {
-                // Ensure standard items + items from the dummy report exist
-                createItemIfNotExists("Proyektor", ItemType.BARANG, 7, "proyektor.jpeg",
-                                "Proyektor berkualitas tinggi");
-                createItemIfNotExists("Sound System", ItemType.BARANG, 5, "sound.jpeg", "Sound system lengkap");
-                createItemIfNotExists("Terpal", ItemType.BARANG, 12, "terpal.jpeg", "Terpal ukuran besar");
-                createItemIfNotExists("Karpet", ItemType.BARANG, 8, "karpet.jpeg", "Karpet masjid");
+                // Barang
+                createItemIfNotExists("Proyektor", ItemType.BARANG, 5, "proyektor.jpeg",
+                                "Proyektor berkualitas tinggi dan bagus");
+                createItemIfNotExists("Sound System", ItemType.BARANG, 7, "sound.jpeg", "Sound system lengkap");
+                createItemIfNotExists("Terpal", ItemType.BARANG, 16, "terpal.jpeg", "Terpal ukuran besar");
+                createItemIfNotExists("Karpet", ItemType.BARANG, 20, "karpet.jpeg", "Karpet masjid");
                 createItemIfNotExists("Kursi Lipat", ItemType.BARANG, 20, "kursi.jpeg", "Kursi lipat besi");
                 createItemIfNotExists("Meja Lipat", ItemType.BARANG, 10, "meja.jpeg", "Meja lipat portable");
                 createItemIfNotExists("Mic Wireless", ItemType.BARANG, 6, "mic.jpeg", "Microphone wireless");
@@ -77,18 +77,31 @@ public class DataSeeder implements CommandLineRunner {
                 createItemIfNotExists("Tikar", ItemType.BARANG, 15, "tikar.jpeg", "Tikar plastik");
                 createItemIfNotExists("Speaker Portable", ItemType.BARANG, 4, "speaker.jpeg",
                                 "Speaker portable dengan baterai");
-
-                // Specific items from report
                 createItemIfNotExists("Speaker", ItemType.BARANG, 5, "speaker.jpeg", "Speaker standar");
-                createItemIfNotExists("Ruang Utama", ItemType.RUANGAN, 1, "ruang_utama.jpeg", "Ruang Utama Masjid");
-                createItemIfNotExists("Pelataran Masjid", ItemType.RUANGAN, 1, "pelataran.jpeg", "Pelataran Masjid");
                 createItemIfNotExists("Meja Kayu", ItemType.BARANG, 10, "meja_kayu.jpeg", "Meja Kayu");
                 createItemIfNotExists("Hijab", ItemType.BARANG, 20, "hijab.jpeg", "Pembatas Hijab");
-                createItemIfNotExists("Selasar Selatan", ItemType.RUANGAN, 1, "selasar.jpeg", "Selasar Selatan");
                 createItemIfNotExists("Sofa", ItemType.BARANG, 3, "sofa.jpeg", "Sofa Tamu");
                 createItemIfNotExists("Akun Zoom MSU", ItemType.BARANG, 1, "zoom.png", "Akun Zoom Premium");
-                createItemIfNotExists("Lantai 2 Timur", ItemType.RUANGAN, 1, "lantai2.jpeg", "Lantai 2 Timur");
                 createItemIfNotExists("Meja", ItemType.BARANG, 10, "meja_biasa.jpeg", "Meja Biasa");
+                createItemIfNotExists("VIP4", ItemType.BARANG, 10, "c99ea443-e84b-4e32-bdb6-1fb98d0c4757.jpeg", "21");
+
+                // Ruangan / Fasilitas
+                createItemIfNotExists("Tidur", ItemType.RUANGAN, 12, "plaza.jpeg", "4");
+                createItemIfNotExists("Aula Utama", ItemType.RUANGAN, 1, "plaza.jpeg",
+                                "Aula utama untuk kegiatan besar");
+                createItemIfNotExists("Ruang Rapat A", ItemType.RUANGAN, 2, "plaza.jpeg", "Ruang rapat kecil A");
+                createItemIfNotExists("Ruang Rapat B", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang rapat kecil B");
+                createItemIfNotExists("Ruang Kajian", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang untuk kajian rutin");
+                createItemIfNotExists("Ruang Tamu", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang tamu untuk penerimaan");
+                createItemIfNotExists("Kelas 1", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Kelas 1");
+                createItemIfNotExists("Kelas 2", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Kelas 2");
+                createItemIfNotExists("Kelas 3", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Kelas 3");
+                createItemIfNotExists("Kelas 4", ItemType.RUANGAN, 1, "plaza.jpeg", "Ruang Kelas 4");
+                createItemIfNotExists("Perpustakaan", ItemType.RUANGAN, 1, "plaza.jpeg", "Perpustakaan umum");
+                createItemIfNotExists("Ruang Utama", ItemType.RUANGAN, 1, "ruang_utama.jpeg", "Ruang Utama Masjid");
+                createItemIfNotExists("Pelataran Masjid", ItemType.RUANGAN, 1, "pelataran.jpeg", "Pelataran Masjid");
+                createItemIfNotExists("Selasar Selatan", ItemType.RUANGAN, 1, "selasar.jpeg", "Selasar Selatan");
+                createItemIfNotExists("Lantai 2 Timur", ItemType.RUANGAN, 1, "lantai2.jpeg", "Lantai 2 Timur");
                 createItemIfNotExists("Ruang Tamu VIP", ItemType.RUANGAN, 1, "vip.jpeg", "Ruang Tamu VIP");
         }
 
@@ -101,6 +114,22 @@ public class DataSeeder implements CommandLineRunner {
                         item.setImageUrl(imageUrl);
                         item.setDescription(description);
                         item.setStatus("Tersedia");
+                        itemRepository.save(item);
+                } else {
+                        // Optional: Update existing item to match exact specs if needed.
+                        // For now, simpler to just ensure existence or update if found.
+                        Item item = itemRepository.findByName(name);
+                        item.setStock(stock);
+                        // Don't overwrite image/desc unless necessary, but user wants 'sesuai
+                        // tampilan'.
+                        // But 'createItemIfNotExists' implies only create.
+                        // Check user request: "items jika di up ke temen saya maka akan sesuai"
+                        // So a friend receiving this will start from 0. createItemIfNotExists is fine.
+                        // But for CURRENT user, validation implies database is already right.
+                        // I will allow it to update stock just in case it runs again.
+                        item.setType(type);
+                        item.setImageUrl(imageUrl);
+                        item.setDescription(description);
                         itemRepository.save(item);
                 }
         }
