@@ -322,15 +322,22 @@ function buildItemPanelHTML(item) {
     const thumb = item.imageUrl || item.thumb || fallbackThumbFor(name);
     const qty = Number(item.quantity || item.qty || 0);
 
-    // Check if maxQty is explicitly set (by real-time check)
-    const hasMax = (item.maxQty !== undefined && item.maxQty !== null);
-    const max = hasMax ? Number(item.maxQty) : 999;
+    // Logic: Treat 999 or 9999 as "Default/Unlimited" regarding display
+    let hasMax = (item.maxQty !== undefined && item.maxQty !== null);
+    let max = hasMax ? Number(item.maxQty) : 999;
+
+    // If max is default (999 or 9999), treat as not set for display
+    // This fixes the "Stok: 999" initial flicker
+    if (max >= 999) {
+        hasMax = false;
+        max = 999;
+    }
 
     const isRuang = (item.type === 'ruang');
     const effectiveMax = isRuang ? 1 : max;
     const disablePlus = (qty >= effectiveMax);
 
-    // Text logic: if max is default (999) and not Room, show placeholder
+    // Text logic: if max is default/unset and not Room, show placeholder
     let stockDisplay = `(Stok tersedia: ${effectiveMax})`;
     if (!hasMax && !isRuang) {
         stockDisplay = `<small class="text-muted opacity-75">(Pilih tanggal untuk cek stok)</small>`;
@@ -668,12 +675,27 @@ async function checkRealtimeAvailability() {
     el?.addEventListener('change', checkRealtimeAvailability);
 });
 
-// Also trigger on load if all values exist
-if (startDateEl?.value && startTimeEl?.value && endDateEl?.value && endTimeEl?.value) {
-    if (document.getElementById('itemTabContent')?.children?.length) {
-        checkRealtimeAvailability();
+// Setup on load: Populate dates from MSUDates if available, then check
+document.addEventListener('DOMContentLoaded', () => {
+    // Populate form fields from MSUDates (Global Storage)
+    if (window.MSUDates) {
+        const saved = window.MSUDates.get();
+        if (startDateEl && saved.startDate) startDateEl.value = saved.startDate;
+        if (startTimeEl && saved.startTime) startTimeEl.value = saved.startTime;
+        if (endDateEl && saved.endDate) endDateEl.value = saved.endDate;
+        if (endTimeEl && saved.endTime) endTimeEl.value = saved.endTime;
     }
-}
+
+    // Trigger check if all values exist
+    if (startDateEl?.value && startTimeEl?.value && endDateEl?.value && endTimeEl?.value) {
+        // slight delay to ensure tabs are built
+        setTimeout(() => {
+            if (document.getElementById('itemTabContent')?.children?.length) {
+                checkRealtimeAvailability();
+            }
+        }, 300);
+    }
+});
 
 /* Legacy syncing (keeping it for non-blocking UI sync if needed, but the real check is above) */
 function syncDateBlockWithActiveItem() {
