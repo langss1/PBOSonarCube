@@ -276,7 +276,10 @@ public class GuestBookingService {
             int projectedStock = currentDbStock;
 
             for (Peminjaman p : overlapping) {
-                if (isTimeOverlapping(reqStart, reqEnd, p)) {
+                // Only count APPROVED or TAKEN (active) bookings
+                boolean isActive = (p.getStatus() == PeminjamanStatus.APPROVED || p.getStatus() == PeminjamanStatus.TAKEN);
+                
+                if (isActive && isTimeOverlapping(reqStart, reqEnd, p)) {
                     if (p.getDetails() != null) {
                         for (PeminjamanDetail pd : p.getDetails()) {
                             if (pd.getItem().getId().equals(item.getId())) {
