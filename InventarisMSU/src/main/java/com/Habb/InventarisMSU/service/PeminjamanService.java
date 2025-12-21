@@ -16,7 +16,6 @@ public class PeminjamanService {
 
     // @Autowired
     // private EmailService emailService;
-
     @Autowired
     private com.Habb.InventarisMSU.repository.ItemRepository itemRepository;
 
@@ -25,6 +24,10 @@ public class PeminjamanService {
         // Email removed as per request
         // emailService.sendSimpleMessage(...)
         return saved;
+    }
+
+    public void save(Peminjaman peminjaman) {
+        peminjamanRepository.save(peminjaman);
     }
 
     public List<Peminjaman> getAllPeminjaman() {
