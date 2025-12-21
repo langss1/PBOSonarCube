@@ -504,8 +504,6 @@ window.addEventListener('load', () => {
     const dateStr = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     if (dateDisplay) dateDisplay.textContent = dateStr;
 
-    // Use local time for date string to avoid timezone shifts
-    // But ISO string is UTC. We want YYYY-MM-DD in local time.
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
@@ -526,61 +524,151 @@ window.addEventListener('load', () => {
         return;
       }
 
-      contentBox.innerHTML = bookings.map(b => {
-        // b: id, borrowerName, department, description, status, items (List<String>)
-        // Parse description for time info? Description: "[Sesi: Pagi...]"
-        let timeLabel = "Waktu tidak spesifik";
-        const sessionMatch = b.description.match(/\[Sesi:\s*([^\]]+)\]/);
-        if (sessionMatch) timeLabel = sessionMatch[1];
+      // 1. Group by Session
+      const sessions = {
+        pagi: [],     // 06.00 - 12.00
+        siang: [],    // 12.00 - 18.00
+        malam: [],    // 18.00 - 22.00
+        seharian: []  // 24 Jam
+      };
 
-        const statusColor = (b.status === 'APPROVED' || b.status === 'COMPLETED') ? '#198754' : '#ffc107';
-        const bgStatus = (b.status === 'APPROVED' || b.status === 'COMPLETED') ? '#e8f5e9' : '#fff3cd';
-        const textStatus = (b.status === 'APPROVED' || b.status === 'COMPLETED') ? '#198754' : '#856404';
+      bookings.forEach(b => {
+        let startHour = 8;
+        let timeLabel = "Waktu ditentukan";
+        let isFullDay = false;
 
-        // Items styling
-        const itemsHTML = (b.items || []).map(it => `
-            <div class="d-flex align-items-center bg-white border px-3 py-2 rounded-3 shadow-sm" style="min-width: fit-content;">
-                <i class="bi bi-check-circle-fill me-2" style="color: ${statusColor}"></i>
-                <span class="fw-semibold text-dark">${it}</span>
-            </div>
-        `).join('');
+        // Parse times
+        // [Waktu: 2025-12-21 08:00 s/d 2025-12-21 17:00]
+        const timeMatch = b.description.match(/\[Waktu:\s*(\d{4}-\d{2}-\d{2}\s+(\d{2}):(\d{2}))\s+s\/d\s+(\d{4}-\d{2}-\d{2}\s+(\d{2}):(\d{2}))/);
+
+        if (timeMatch) {
+          // Group 2: Start HH
+          startHour = parseInt(timeMatch[2], 10);
+
+          const startFull = timeMatch[1]; // yyyy-mm-dd hh:mm
+          const endFull = timeMatch[4];
+
+          // Check for "Seharian" logic (> 20 hours duration)
+          let startD = new Date(startFull.replace(' ', 'T'));
+          let endD = new Date(endFull.replace(' ', 'T'));
+          let diffMs = endD - startD;
+          let diffHours = diffMs / (1000 * 60 * 60);
+
+          if (diffHours >= 20) isFullDay = true;
+
+          // Time Label logic (12:32 - 21:32)
+          const fullStr = b.description.match(/\[Waktu:\s*([^\]]+)\]/)[1];
+          timeLabel = fullStr.replace(/\d{4}-\d{2}-\d{2}\s/g, '');
+        } else {
+          // Legacy
+          const sessionMatch = b.description.match(/\[Sesi:\s*([^\]]+)\]/);
+          if (sessionMatch) {
+            const s = sessionMatch[1].toLowerCase();
+            if (s.includes('siang')) startHour = 13;
+            if (s.includes('malam')) startHour = 19;
+            if (s.includes('pagi')) startHour = 8;
+            timeLabel = sessionMatch[1];
+          }
+        }
+
+        b.displayTime = timeLabel;
+
+        // Categorize
+        if (isFullDay) {
+          sessions.seharian.push(b);
+        } else {
+          // Standard Logic
+          if (startHour >= 6 && startHour < 12) sessions.pagi.push(b);
+          else if (startHour >= 12 && startHour < 18) sessions.siang.push(b);
+          else if (startHour >= 18) sessions.malam.push(b); // Extended Malam > 18
+          else sessions.pagi.push(b); // Default fallback
+        }
+      });
+
+      // 2. Render Groups
+      let html = '';
+
+      // Custom Card Style (Updated)
+      const renderCard = (b) => {
+        // Colors
+        let color = '#ffc107'; // Default Yellow (PENDING)
+        let badgeBg = '#ffc107';
+        let badgeText = '#000';
+
+        if (b.status === 'APPROVED') { color = '#198754'; badgeBg = '#198754'; badgeText = '#fff'; }
+        else if (b.status === 'TAKEN') { color = '#0dcaf0'; badgeBg = '#0dcaf0'; badgeText = '#000'; }
+        else if (b.status === 'COMPLETED') { color = '#6c757d'; badgeBg = '#6c757d'; badgeText = '#fff'; }
+        else if (b.status === 'REJECTED') { color = '#dc3545'; badgeBg = '#dc3545'; badgeText = '#fff'; }
+
+        // Items styling: Gray pill badges with borders
+        const itemsHTML = (b.items || []).map(it => {
+          return `<span class="badge bg-light text-dark border fw-normal me-2 mb-1" style="font-size: 0.8rem;">
+                <i class="bi bi-box-seam me-1 text-secondary"></i>${it}
+              </span>`;
+        }).join('');
+
+        const maskName = (n) => {
+          if (!n || n.length < 3) return n;
+          return n[0] + '*'.repeat(20);
+        };
 
         return `
-        <div class="card border-0 mb-3 shadow-sm" style="border-radius: 16px; overflow:hidden; transition: transform 0.2s;">
-          <div class="card-header border-0 d-flex justify-content-between align-items-center px-4 py-3" style="background-color: ${bgStatus};">
-             <div class="d-flex align-items-center gap-2">
-                <span class="badge rounded-pill border border-1" style="background-color: #fff; color: ${textStatus}; border-color: ${statusColor} !important;">
-                   ${b.status}
-                </span>
-                <span class="fw-bold fs-6" style="color: ${textStatus}">${b.department || 'Peminjam'}</span>
-             </div>
-             <div class="small" style="color: ${textStatus}; opacity: 0.8;">
-                <i class="bi bi-person-fill"></i> ${b.borrowerName}
-             </div>
-          </div>
-          
-          <div class="card-body px-4 py-4">
-               <!-- Time Section -->
-               <div class="d-flex align-items-center mb-4">
-                  <div class="d-flex align-items-center justify-content-center rounded-circle me-3" style="width:48px;height:48px; background-color: #f1f3f5;">
-                     <i class="bi bi-clock-history fs-4 text-secondary"></i>
-                  </div>
-                  <div>
-                     <div class="small text-muted text-uppercase fw-bold" style="letter-spacing:0.5px; font-size: 0.7rem;">Waktu Peminjaman</div>
-                     <div class="fw-bold text-dark fs-5">${timeLabel}</div>
-                  </div>
-               </div>
+            <div class="card mb-3 border-0 shadow-sm" style="border-radius: 8px; border-left: 5px solid ${color} !important;">
+                <div class="card-body py-3">
+                    <!-- Top Row: Title + Status -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold mb-0 text-dark fs-5">${b.department || b.borrowerName}</h6>
+                        <span class="badge rounded-pill" style="background-color: ${badgeBg}; color: ${badgeText}; font-size: 0.75rem;">${b.status}</span>
+                    </div>
 
-               <!-- Items Section -->
-               <div>
-                  <div class="small text-muted mb-2 fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing:0.5px;">Barang / Fasilitas Dipinjam</div>
-                  <div class="d-flex flex-wrap gap-2">
-                     ${itemsHTML || '<div class="text-muted small fst-italic px-2">Tidak ada detail barang</div>'}
-                  </div>
-               </div>
-          </div>
-        </div>`;
-      }).join('');
+                    <!-- Time Row -->
+                    <div class="text-muted small mb-3">
+                        <i class="bi bi-clock me-1"></i> ${b.displayTime}
+                    </div>
+                    
+                    <!-- Items Row -->
+                    <div class="mb-3 d-flex flex-wrap">
+                         ${itemsHTML}
+                    </div>
+
+                    <!-- Bottom Row: Footer -->
+                    <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                         <div class="text-muted small" style="letter-spacing: 1px; font-family: monospace;">
+                            <i class="bi bi-person me-2"></i>|${maskName(b.borrowerName)}
+                         </div>
+                         <div class="small fw-bold text-secondary text-uppercase">${b.department || 'UMUM'}</div>
+                    </div>
+                </div>
+            </div>
+         `;
+      };
+
+      const renderSection = (label, list) => {
+        const content = list.length ? list.map(renderCard).join('') : `<div class="text-muted fst-italic small border-bottom pb-3 mb-3">- Kosong -</div>`;
+        return `
+            <div class="mb-4">
+                <h6 class="fw-bold text-secondary mb-2" style="font-size: 0.95rem;">${label}</h6>
+                ${content}
+            </div>
+          `;
+      };
+
+      html += renderSection('Pagi (06.00 - 12.00)', sessions.pagi);
+      html += renderSection('Siang (12.00 - 18.00)', sessions.siang);
+      html += renderSection('Malam (18.00 - 22.00)', sessions.malam);
+      html += renderSection('Seharian (24 Jam)', sessions.seharian);
+
+      contentBox.innerHTML = html;
+
+      if (!html) {
+        contentBox.innerHTML = `
+          <div class="text-center py-5 text-muted opacity-75">
+            <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+            <div>Tidak ada peminjaman pada sesi Pagi/Siang/Malam.</div>
+          </div>`;
+      } else {
+        contentBox.innerHTML = html;
+      }
 
     } catch (err) {
       console.error(err);

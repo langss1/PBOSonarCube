@@ -321,10 +321,20 @@ function buildItemPanelHTML(item) {
     const name = item.name || 'Barang';
     const thumb = item.imageUrl || item.thumb || fallbackThumbFor(name);
     const qty = Number(item.quantity || item.qty || 0);
-    const max = (item.maxQty !== undefined && item.maxQty !== null) ? Number(item.maxQty) : 999;
+
+    // Check if maxQty is explicitly set (by real-time check)
+    const hasMax = (item.maxQty !== undefined && item.maxQty !== null);
+    const max = hasMax ? Number(item.maxQty) : 999;
+
     const isRuang = (item.type === 'ruang');
     const effectiveMax = isRuang ? 1 : max;
     const disablePlus = (qty >= effectiveMax);
+
+    // Text logic: if max is default (999) and not Room, show placeholder
+    let stockDisplay = `(Stok tersedia: ${effectiveMax})`;
+    if (!hasMax && !isRuang) {
+        stockDisplay = `<small class="text-muted opacity-75">(Pilih tanggal untuk cek stok)</small>`;
+    }
 
     return `
     <div class="item-panel">
@@ -344,7 +354,7 @@ function buildItemPanelHTML(item) {
                    style="width:32px;height:32px" ${disablePlus ? 'disabled' : ''}><i class="bi bi-plus"></i></button>
         </div>
         <div class="text-muted small mb-3 stock-limit-text">
-             ${isRuang ? '(Maks 1)' : `(Stok tersedia: ${effectiveMax})`}
+             ${isRuang ? '(Maks 1)' : stockDisplay}
         </div>
       </div>
 
