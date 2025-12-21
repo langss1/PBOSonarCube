@@ -28,4 +28,6 @@ public interface PeminjamanRepository extends JpaRepository<Peminjaman, Long> {
     // total
     @org.springframework.data.jpa.repository.Query("SELECT pd.item.id, SUM(pd.quantity) FROM PeminjamanDetail pd WHERE pd.peminjaman.status IN :statuses GROUP BY pd.item.id")
     List<Object[]> countBorrowedItems(@Param("statuses") List<PeminjamanStatus> statuses);
+
+    long countByEmail(String email);
 }

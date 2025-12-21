@@ -44,6 +44,7 @@ public class DataSeeder implements CommandLineRunner {
             seedUsers();
             seedItems();
             seedPeminjaman(); // Integrating this back
+            seedPendingIhab();
             seedLaporan();
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,12 +222,33 @@ public class DataSeeder implements CommandLineRunner {
                     PeminjamanStatus.COMPLETED,
                     formatter);
 
-            // 15. Ruang Tamu VIP / Ruangan / Salim Yusuf / 10/15/2024 - 10/15/2024 / Sudah
-            // Kembali / 1
             createLoan("Salim Yusuf", "Ruang Tamu VIP", 1, "10/15/2024", "10/15/2024",
                     PeminjamanStatus.COMPLETED,
                     formatter);
         }
+    }
+
+    private void seedPendingIhab() {
+       long existing = peminjamanRepository.countByEmail("ihabb.hasanain@gmail.com");
+       if (existing < 5) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            String targetEmail = "ihabb.hasanain@gmail.com";
+            
+            createLoanWithEmail("Ihab Hasanain", targetEmail, "Proyektor", 1, "01/10/2026", "01/12/2026", 
+                    PeminjamanStatus.PENDING, formatter);
+
+            createLoanWithEmail("Ihab Hasanain", targetEmail, "Sound System", 1, "01/15/2026", "01/15/2026", 
+                    PeminjamanStatus.PENDING, formatter);
+
+            createLoanWithEmail("Ihab Hasanain", targetEmail, "Karpet", 5, "02/01/2026", "02/03/2026", 
+                    PeminjamanStatus.PENDING, formatter);
+
+            createLoanWithEmail("Ihab Hasanain", targetEmail, "Ruang Utama", 1, "02/10/2026", "02/10/2026", 
+                    PeminjamanStatus.PENDING, formatter);
+
+            createLoanWithEmail("Ihab Hasanain", targetEmail, "Mic Wireless", 2, "02/20/2026", "02/22/2026", 
+                    PeminjamanStatus.PENDING, formatter);
+       }
     }
 
     private void seedLaporan() {
@@ -254,16 +276,26 @@ public class DataSeeder implements CommandLineRunner {
 
     private void createLoan(String borrower, String itemName, int qty, String start, String end,
             PeminjamanStatus status, DateTimeFormatter fmt) {
+        createLoanWithEmail(borrower, "user@example.com", itemName, qty, start, end, status, fmt);
+    }
+
+    private void createLoanWithEmail(String borrower, String email, String itemName, int qty, String start, String end,
+                                     PeminjamanStatus status, DateTimeFormatter fmt) {
         Item item = itemRepository.findByName(itemName);
         if (item != null) {
             Peminjaman p = new Peminjaman();
             p.setBorrowerName(borrower);
-            p.setEmail("user@example.com"); // Dummy
+            p.setEmail(email);
             p.setStartDate(LocalDate.parse(start, fmt));
             p.setEndDate(LocalDate.parse(end, fmt));
             p.setStatus(status);
-            p.setHandedOver(true);
-            p.setReturned(status == PeminjamanStatus.COMPLETED); // returned if completed
+            
+            // Logic boolean based on status
+            boolean isTaken = (status == PeminjamanStatus.TAKEN || status == PeminjamanStatus.COMPLETED || status == PeminjamanStatus.RETURNED);
+            boolean isReturned = (status == PeminjamanStatus.COMPLETED || status == PeminjamanStatus.RETURNED);
+            
+            p.setHandedOver(isTaken);
+            p.setReturned(isReturned);
 
             // Create Detail
             PeminjamanDetail detail = new PeminjamanDetail();
