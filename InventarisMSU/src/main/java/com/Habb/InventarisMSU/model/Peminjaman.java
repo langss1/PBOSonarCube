@@ -7,8 +7,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "peminjaman")
-@Entity
-@Table(name = "peminjaman")
 public class Peminjaman extends BaseEntity {
 
     // ID removed (Inherited from BaseEntity)

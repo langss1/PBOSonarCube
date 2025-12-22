@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "items")
-@Entity
-@Table(name = "items")
 public class Item extends BaseEntity {
 
     // ID removed (Inherited)
@@ -28,9 +26,6 @@ public class Item extends BaseEntity {
 
     @Column(name = "status")
     private String status;
-
-    @Column(name = "capacity")
-    private Integer capacity;
 
     @Column(name = "capacity")
     private Integer capacity;

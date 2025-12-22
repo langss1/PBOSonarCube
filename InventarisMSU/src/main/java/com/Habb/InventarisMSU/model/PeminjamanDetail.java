@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "peminjaman_details")
-@Entity
-@Table(name = "peminjaman_details")
 public class PeminjamanDetail extends BaseEntity {
     // ID removed (Inherited)
 
@@ -16,8 +14,6 @@ public class PeminjamanDetail extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
-
-    private Integer quantity;
 
     private Integer quantity;
 

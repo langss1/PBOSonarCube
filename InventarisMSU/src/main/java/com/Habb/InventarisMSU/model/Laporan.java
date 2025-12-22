@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "laporan")
-@Entity
-@Table(name = "laporan")
 public class Laporan extends BaseEntity {
 
     // ID removed (Inherited)
