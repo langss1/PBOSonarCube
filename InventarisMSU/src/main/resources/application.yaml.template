@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: InventarisMSU
+
+  docker:
+    compose:
+      enabled: false
+
+  datasource:
+    url: jdbc:mysql://inventaris-db:3306/inventaris?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: password # Ganti dengan password database Anda
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      initialization-fail-timeout: 0
+      connection-timeout: 30000
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: email@gmail.com # Ganti dengan email pengirim (Gmail)
+    password: password # Ganti dengan app password gmail
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+            
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 50MB
