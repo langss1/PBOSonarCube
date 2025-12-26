@@ -5,94 +5,145 @@ classDiagram
     namespace Model {
         class BaseEntity {
             <<Abstract>>
-            +Long id
-            +getId() Long
-            +setId(Long id) void
+            - Long id
+            + Long getId()
+            + void setId(Long id)
         }
 
         class Item {
-            +String name
-            +ItemType type
-            +Integer stock
-            +String description
-            +String imageUrl
-            +String status
-            +Integer capacity
-            +getName() String
-            +setName(String name) void
-            +getType() ItemType
-            +setType(ItemType type) void
-            +getStock() Integer
-            +setStock(Integer stock) void
-            +getCapacity() Integer
-            +setCapacity(Integer capacity) void
-            +getDescription() String
-            +setDescription(String description) void
-            +getImageUrl() String
-            +setImageUrl(String imageUrl) void
-            +getStatus() String
-            +setStatus(String status) void
+            - String name
+            - ItemType type
+            - Integer stock
+            - String description
+            - String imageUrl
+            - String status
+            - Integer capacity
+            + String getName()
+            + void setName(String name)
+            + ItemType getType()
+            + void setType(ItemType type)
+            + Integer getStock()
+            + void setStock(Integer stock)
+            + Integer getCapacity()
+            + void setCapacity(Integer capacity)
+            + String getDescription()
+            + void setDescription(String description)
+            + String getImageUrl()
+            + void setImageUrl(String imageUrl)
+            + String getStatus()
+            + void setStatus(String status)
         }
 
         class Peminjaman {
-            +String borrowerName
-            +String email
-            +String phone
-            +String reason
-            +String nimNip
-            +String department
-            +String description
-            +String documentPath
-            +Integer duration
-            +String location
-            +String identityCardPath
-            +String session
-            +LocalDate startDate
-            +LocalDate endDate
-            +LocalTime startTime
-            +LocalTime endTime
-            +PeminjamanStatus status
-            +LocalDateTime submissionDate
-            +boolean handedOver
-            +boolean returned
-            +onCreate() void
-            +getBorrowerName() String
-            +setBorrowerName(String name) void
-            +getDetails() List~PeminjamanDetail~
-            +setDetails(List~PeminjamanDetail~ details) void
-            +getLaporan() Laporan
-            +setLaporan(Laporan laporan) void
+            - String borrowerName
+            - String email
+            - String phone
+            - String reason
+            - String nimNip
+            - String department
+            - String description
+            - String documentPath
+            - Integer duration
+            - String location
+            - String identityCardPath
+            - String session
+            - LocalDate startDate
+            - LocalDate endDate
+            - LocalTime startTime
+            - LocalTime endTime
+            - PeminjamanStatus status
+            - LocalDateTime submissionDate
+            - boolean handedOver
+            - boolean returned
+            - Laporan laporan
+            - List~PeminjamanDetail~ details
+            # void onCreate()
+            + String getBorrowerName()
+            + void setBorrowerName(String name)
+            + String getEmail()
+            + void setEmail(String email)
+            + String getPhone()
+            + void setPhone(String phone)
+            + String getReason()
+            + void setReason(String reason)
+            + String getNimNip()
+            + void setNimNip(String nimNip)
+            + String getDepartment()
+            + void setDepartment(String department)
+            + String getDescription()
+            + void setDescription(String description)
+            + String getDocumentPath()
+            + void setDocumentPath(String path)
+            + Integer getDuration()
+            + void setDuration(Integer duration)
+            + String getLocation()
+            + void setLocation(String location)
+            + String getIdentityCardPath()
+            + void setIdentityCardPath(String path)
+            + String getSession()
+            + void setSession(String session)
+            + LocalDate getStartDate()
+            + void setStartDate(LocalDate date)
+            + LocalDate getEndDate()
+            + void setEndDate(LocalDate date)
+            + LocalTime getStartTime()
+            + void setStartTime(LocalTime time)
+            + LocalTime getEndTime()
+            + void setEndTime(LocalTime time)
+            + PeminjamanStatus getStatus()
+            + void setStatus(PeminjamanStatus status)
+            + LocalDateTime getSubmissionDate()
+            + void setSubmissionDate(LocalDateTime date)
+            + boolean isHandedOver()
+            + void setHandedOver(boolean handedOver)
+            + boolean isReturned()
+            + void setReturned(boolean returned)
+            + Laporan getLaporan()
+            + void setLaporan(Laporan laporan)
+            + List~PeminjamanDetail~ getDetails()
+            + void setDetails(List~PeminjamanDetail~ details)
         }
 
         class PeminjamanDetail {
-            +Integer quantity
-            +getPeminjaman() Peminjaman
-            +setPeminjaman(Peminjaman peminjaman) void
-            +getItem() Item
-            +setItem(Item item) void
-            +getQuantity() Integer
-            +setQuantity(Integer q) void
+            - Peminjaman peminjaman
+            - Item item
+            - Integer quantity
+            + Peminjaman getPeminjaman()
+            + void setPeminjaman(Peminjaman peminjaman)
+            + Item getItem()
+            + void setItem(Item item)
+            + Integer getQuantity()
+            + void setQuantity(Integer q)
         }
 
         class Laporan {
-            +LocalDateTime pickedUpAt
-            +LocalDateTime returnedAt
-            +boolean isSubmitted
-            +String notes
-            +getPeminjaman() Peminjaman
-            +setPeminjaman(Peminjaman p) void
-            +getPickedUpAt() LocalDateTime
-            +getReturnedAt() LocalDateTime
-            +isSubmitted() boolean
-            +getNotes() String
+            - Peminjaman peminjaman
+            - LocalDateTime pickedUpAt
+            - LocalDateTime returnedAt
+            - boolean isSubmitted
+            - String notes
+            + Peminjaman getPeminjaman()
+            + void setPeminjaman(Peminjaman p)
+            + LocalDateTime getPickedUpAt()
+            + void setPickedUpAt(LocalDateTime t)
+            + LocalDateTime getReturnedAt()
+            + void setReturnedAt(LocalDateTime t)
+            + boolean isSubmitted()
+            + void setSubmitted(boolean s)
+            + String getNotes()
+            + void setNotes(String n)
         }
 
         class User {
-            +String email
-            +String password
-            +Role role
-            +getEmail() String
-            +getRole() Role
+            - String email
+            - String password
+            - Role role
+            + String getEmail()
+            + void setEmail(String email)
+            + String getPassword()
+            + void setPassword(String password)
+            + Role getRole()
+            + void setRole(Role role)
         }
 
         class ItemType {
@@ -137,29 +188,109 @@ classDiagram
     %% --- DATA TRANSFER OBJECTS ---
     namespace DTO {
         class BookingRequestDTO {
-            +String borrowerName
-            +String email
-            +String phone
-            +String nimNip
-            +String itemsJson
-            +getBorrowerName() String
-            +getItemsJson() String
+            - String borrowerName
+            - String email
+            - String phone
+            - String nimNip
+            - String department
+            - String reason
+            - String description
+            - String location
+            - String startDate
+            - String startTime
+            - String endDate
+            - String endTime
+            - Integer duration
+            - String itemsJson
+            - String session
+            + String getBorrowerName()
+            + void setBorrowerName(String name)
+            + String getEmail()
+            + void setEmail(String email)
+            + String getPhone()
+            + void setPhone(String phone)
+            + String getNimNip()
+            + void setNimNip(String nimNip)
+            + String getDepartment()
+            + void setDepartment(String dept)
+            + String getReason()
+            + void setReason(String reason)
+            + String getDescription()
+            + void setDescription(String desc)
+            + String getLocation()
+            + void setLocation(String loc)
+            + String getStartDate()
+            + void setStartDate(String date)
+            + String getStartTime()
+            + void setStartTime(String time)
+            + String getEndDate()
+            + void setEndDate(String date)
+            + String getEndTime()
+            + void setEndTime(String time)
+            + Integer getDuration()
+            + void setDuration(Integer duration)
+            + String getItemsJson()
+            + void setItemsJson(String json)
+            + String getSession()
+            + void setSession(String session)
         }
         class PublicBookingDTO {
-            +Long id
-            +String borrowerName
-            +String status
-            +List~String~ items
+            - Long id
+            - String borrowerName
+            - String department
+            - String description
+            - String status
+            - String startDate
+            - List~String~ items
+            + Long getId()
+            + void setId(Long id)
+            + String getBorrowerName()
+            + void setBorrowerName(String name)
+            + String getDepartment()
+            + void setDepartment(String dept)
+            + String getDescription()
+            + void setDescription(String desc)
+            + String getStatus()
+            + void setStatus(String status)
+            + String getStartDate()
+            + void setStartDate(String date)
+            + List~String~ getItems()
+            + void setItems(List~String~ items)
         }
         class AvailabilityDTO {
-            +Long itemId
-            +String itemName
-            +int available
+            - Long itemId
+            - String itemName
+            - int available
+            + AvailabilityDTO()
+            + AvailabilityDTO(Long id, String name, int av)
+            + Long getItemId()
+            + void setItemId(Long id)
+            + String getItemName()
+            + void setItemName(String name)
+            + int getAvailable()
+            + void setAvailable(int av)
         }
         class CartItem {
-            +Long id
-            +String name
-            +int quantity
+            - Long id
+            - String name
+            - String type
+            - int quantity
+            - String imageUrl
+            - Integer maxQty
+            + CartItem()
+            + CartItem(Long id, String name, String type, int qty, String img, Integer max)
+            + Long getId()
+            + void setId(Long id)
+            + String getName()
+            + void setName(String name)
+            + String getType()
+            + void setType(String type)
+            + int getQuantity()
+            + void setQuantity(int q)
+            + String getImageUrl()
+            + void setImageUrl(String img)
+            + Integer getMaxQty()
+            + void setMaxQty(Integer max)
         }
     }
 
@@ -167,28 +298,28 @@ classDiagram
     namespace Repository {
         class ItemRepository {
             <<Interface>>
-            +findByTypeOrderByIdDesc(ItemType type) List~Item~
-            +findByName(String name) Item
-            +findByType(ItemType type) List~Item~
-            +findTop4ByType(ItemType type) List~Item~
-            +countByType(ItemType type) long
+            + findByTypeOrderByIdDesc(ItemType type) List~Item~
+            + findByName(String name) Item
+            + findByType(ItemType type) List~Item~
+            + findTop4ByType(ItemType type) List~Item~
+            + countByType(ItemType type) long
         }
 
         class PeminjamanRepository {
             <<Interface>>
-            +findByStatus(PeminjamanStatus status) List~Peminjaman~
-            +findByStatusNot(PeminjamanStatus status) List~Peminjaman~
-            +findByStartDate(LocalDate date) List~Peminjaman~
-            +findBookingsInDataRange(LocalDate start, LocalDate end) List~Peminjaman~
-            +findOverlappingRange(LocalDate start, LocalDate end) List~Peminjaman~
-            +findOverlappingBookings(LocalDate date) List~Peminjaman~
-            +countBorrowedItems(List~PeminjamanStatus~ statuses) List~Object[]~
-            +countByEmail(String email) long
+            + findByStatus(PeminjamanStatus status) List~Peminjaman~
+            + findByStatusNot(PeminjamanStatus status) List~Peminjaman~
+            + findByStartDate(LocalDate date) List~Peminjaman~
+            + findBookingsInDataRange(LocalDate start, LocalDate end) List~Peminjaman~
+            + findOverlappingRange(LocalDate start, LocalDate end) List~Peminjaman~
+            + findOverlappingBookings(LocalDate date) List~Peminjaman~
+            + countBorrowedItems(List~PeminjamanStatus~ statuses) List~Object[]~
+            + countByEmail(String email) long
         }
 
         class LaporanRepository {
             <<Interface>>
-            +findByPeminjamanId(Long id) Laporan
+            + findByPeminjamanId(Long id) Laporan
         }
 
         class PeminjamanDetailRepository {
@@ -197,7 +328,7 @@ classDiagram
 
         class UserRepository {
             <<Interface>>
-            +findByEmail(String email) Optional~User~
+            + findByEmail(String email) Optional~User~
         }
     }
     
@@ -211,47 +342,68 @@ classDiagram
     %% --- SERVICE LAYER ---
     namespace Service {
         class GuestBookingService {
-            +submitBooking(BookingRequestDTO req, MultipartFile file, MultipartFile identity) void
-            +getPublicBookings(String dateStr) List~PublicBookingDTO~
-            +getBookedDays(String itemName, int year, int month) List~Integer~
-            +checkAvailability(String startDt, String startTm, String endDt, String endTm) List~AvailabilityDTO~
-            -sendBookingConfirmationEmail(Peminjaman p) void
+            - PeminjamanRepository peminjamanRepository
+            - ItemRepository itemRepository
+            - ObjectMapper objectMapper
+            - EmailService emailService
+            + submitBooking(BookingRequestDTO req, MultipartFile f, MultipartFile id) void
+            + getPublicBookings(String dateStr) List~PublicBookingDTO~
+            + getBookedDays(String itemName, int year, int month) List~Integer~
+            + checkAvailability(String startDt, String startTm, String endDt, String endTm) List~AvailabilityDTO~
+            - sendBookingConfirmationEmail(Peminjaman p) void
+            - maskName(String name) String
+            - isTimeOverlapping(LocalDateTime s, LocalDateTime e, Peminjaman p) boolean
         }
 
         class PeminjamanService {
-            +createPeminjaman(Peminjaman p) Peminjaman
-            +save(Peminjaman p) void
-            +getAllPeminjaman() List~Peminjaman~
-            +getPeminjamanById(Long id) Peminjaman
-            +updateStatus(Long id, PeminjamanStatus status, String reason) void
-            +updateHandover(Long id, boolean handedOver) void
-            +updateReturn(Long id, boolean returned) void
-            -sendApprovalEmail(Peminjaman p) void
-            -sendRejectionEmail(Peminjaman p, String reason) void
+            - PeminjamanRepository peminjamanRepository
+            - EmailService emailService
+            - ItemRepository itemRepository
+            + createPeminjaman(Peminjaman p) Peminjaman
+            + save(Peminjaman p) void
+            + getAllPeminjaman() List~Peminjaman~
+            + getPeminjamanById(Long id) Peminjaman
+            + updateStatus(Long id, PeminjamanStatus status) void
+            + updateStatus(Long id, PeminjamanStatus status, String reason) void
+            + updateHandover(Long id, boolean handedOver) void
+            + updateReturn(Long id, boolean returned) void
+            - sendApprovalEmail(Peminjaman p) void
+            - sendRejectionEmail(Peminjaman p, String reason) void
+            - buildEmailBody(Peminjaman p, String msg, String reason) String
         }
 
         class ItemService {
-            +getAllItems() List~Item~
-            +getItemById(Long id) Item
-            +saveItem(Item item) Item
-            +deleteItem(Long id) void
-            +getAvailableStock(Item item, LocalDate start, LocalDate end) int
+            - ItemRepository itemRepository
+            - PeminjamanRepository peminjamanRepository
+            + getAllItems() List~Item~
+            + getItemById(Long id) Item
+            + saveItem(Item item) Item
+            + deleteItem(Long id) void
+            + getAvailableStock(Item item, LocalDate start, LocalDate end) int
+            - isOverlapping(LocalDate s1, LocalDate e1, LocalDate s2, LocalDate e2) boolean
         }
 
         class ReportService {
-            +getAllData() List~Peminjaman~
-            +generateCsv() byte[]
-            +generateXlsx() byte[]
-            +generatePdf() byte[]
+            - PeminjamanRepository peminjamanRepository
+            - getAllData() List~Peminjaman~
+            - createDummy(...) Peminjaman
+            - getStatusLabel(Peminjaman p) String
+            - escape(String data) String
+            - createCell(...) void
+            + generateCsv() byte[]
+            + generateXlsx() byte[]
+            + generatePdf() byte[]
         }
         
         class EmailService {
-            +sendSimpleMessage(String to, String subject, String text) void
-            +sendHtmlMessage(String to, String subject, String html) void
+            - JavaMailSender mailSender
+            + sendSimpleMessage(String to, String subject, String text) void
+            + sendHtmlMessage(String to, String subject, String html) void
         }
         
         class CustomUserDetailsService {
-            +loadUserByUsername(String email) UserDetails
+            - UserRepository userRepository
+            + loadUserByUsername(String email) UserDetails
         }
     }
 
@@ -274,52 +426,72 @@ classDiagram
     %% --- CONTROLLER LAYER ---
     namespace Controller {
         class PeminjamanController {
-            +submitBooking(...) ResponseEntity
-            +getBookings(String date) ResponseEntity
-            +getBookedDays(...) ResponseEntity
-            +checkAvailability(...) ResponseEntity
+            - GuestBookingService guestBookingService
+            + submitBooking(...) ResponseEntity
+            + getBookings(String date) ResponseEntity
+            + getBookedDays(...) ResponseEntity
+            + checkAvailability(...) ResponseEntity
         }
         
         class PengelolaController {
-            +beranda(Model model) String
-            +approval(Model model) String
-            +updateStatus(Long id, String status, String reason) String
-            +laporan(Model model) String
-            +downloadCsv() ResponseEntity
-            +downloadXlsx() ResponseEntity
-            +downloadPdf() ResponseEntity
+            - ItemService itemService
+            - PeminjamanRepository peminjamanRepository
+            - PeminjamanService peminjamanService
+            - ReportService reportService
+            + beranda(Model model) String
+            + testApproval() String
+            + approval(Model model) String
+            + updateStatus(Long id, String status, String reason) String
+            + cetak(Long id, Model model) String
+            + laporan(Model model) String
+            + downloadCsv() ResponseEntity
+            + downloadXlsx() ResponseEntity
+            + downloadPdf() ResponseEntity
         }
         
         class PengurusController {
-            +dashboard(Model model) String
-            +fasilitas(Model model) String
-            +updateStatusApi(Long id, String action) Map
-            +riwayat(Model model) String
-            +cancelStatus(Long id) String
-            +submitReport(Long id, String reason) String
+            - PeminjamanService peminjamanService
+            - LaporanRepository laporanRepository
+            + dashboard(Model model) String
+            + fasilitas(Model model) String
+            + updateStatusApi(Long id, String action) Map
+            + updateStatus(...) String
+            + riwayat(Model model) String
+            + cancelStatus(Long id) String
+            + submitReport(Long id, String reason) String
         }
         
         class ItemManageController {
-            +updateBarang(...) String
-            +updateRuangan(...) String
-            +deleteItem(Long id) String
+            - ItemService itemService
+            + updateBarang(...) String
+            + updateRuangan(...) String
+            + deleteItem(Long id) String
         }
         
         class TambahController {
-            +showTambah(Model model) String
-            +submitTambah(...) String
+            - ItemService itemService
+            + showTambah(Model model) String
+            + submitTambah(...) String
         }
         
         class CartController {
-            +addToCart(CartItem item, HttpSession session) List
-            +getCart(HttpSession session) List
-            +clearCart(HttpSession session) void
+            - ItemRepository itemRepository
+            + addToCart(CartItem item, HttpSession session) List
+            + getCart(HttpSession session) List
+            + clearCart(HttpSession session) void
+            - getCartFromSession(HttpSession session) List
         }
         
         class HomeController {
-            +index(Model model) String
-            +catalogue(Model model) String
-            +ruangan(Model model) String
+            - ItemRepository itemRepository
+            + index(Model model) String
+            + catalogue(Model model) String
+            + ruangan(Model model) String
+            + bookingRuang() String
+            + form() String
+            + terms() String
+            + success() String
+            + login() String
         }
     }
 
