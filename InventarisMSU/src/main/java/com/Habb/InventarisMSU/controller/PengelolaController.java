@@ -16,6 +16,8 @@ import com.Habb.InventarisMSU.model.Peminjaman;
 @RequestMapping("/pengelola")
 public class PengelolaController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PengelolaController.class);
+
     private final ItemService itemService;
     private final PeminjamanRepository peminjamanRepository;
     private final PeminjamanService peminjamanService;
@@ -47,19 +49,19 @@ public class PengelolaController {
 
     @GetMapping("/approval")
     public String approval(Model model) {
-        System.out.println("=== DEBUG: Entering approval method ===");
+        logger.debug("Entering approval method");
         try {
             var pendingList = peminjamanRepository.findByStatus(PeminjamanStatus.PENDING);
-            System.out.println("Pending list size: " + (pendingList == null ? "null" : pendingList.size()));
+            logger.debug("Pending list size: {}", pendingList == null ? "null" : pendingList.size());
 
             var historyList = peminjamanRepository.findByStatusNot(PeminjamanStatus.PENDING);
-            System.out.println("History list size: " + (historyList == null ? "null" : historyList.size()));
+            logger.debug("History list size: {}", historyList == null ? "null" : historyList.size());
 
             model.addAttribute("pendingList", pendingList);
             model.addAttribute("historyList", historyList);
             return "pengelola/approval_list";
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error in approval list page", e);
             throw e;
         }
     }

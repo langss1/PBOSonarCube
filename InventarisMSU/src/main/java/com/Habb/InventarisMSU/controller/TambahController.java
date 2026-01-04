@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/pengelola")
 public class TambahController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TambahController.class);
+
     private final ItemService itemService;
 
     public TambahController(ItemService itemService) {
@@ -64,7 +66,7 @@ public class TambahController {
                 java.nio.file.Files.copy(imageFile.getInputStream(), uploadPath.resolve(fileName),
                         java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             } catch (java.io.IOException e) {
-                e.printStackTrace();
+                logger.error("Failed to upload file", e);
                 // Fallback to default if error
                 fileName = "default.png";
             }

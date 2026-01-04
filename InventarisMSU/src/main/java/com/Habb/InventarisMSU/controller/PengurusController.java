@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 @RequestMapping("/pengurus")
 public class PengurusController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PengurusController.class);
+
     private final PeminjamanService peminjamanService;
     private final LaporanRepository laporanRepository;
 
@@ -39,7 +41,7 @@ public class PengurusController {
         var today = LocalDate.now();
         var approvedToday = all.stream()
                 .filter(p -> p.getStatus() == PeminjamanStatus.APPROVED
-                || p.getStatus() == PeminjamanStatus.TAKEN)
+                        || p.getStatus() == PeminjamanStatus.TAKEN)
                 .filter(p -> !p.getStartDate().isAfter(today) && !p.getEndDate().isBefore(today)) // Active today
                 .toList();
 
@@ -53,7 +55,7 @@ public class PengurusController {
         // Filter for APPROVED (ready to take) or TAKEN (ready to return)
         var active = all.stream()
                 .filter(p -> p.getStatus() == PeminjamanStatus.APPROVED
-                || p.getStatus() == PeminjamanStatus.TAKEN)
+                        || p.getStatus() == PeminjamanStatus.TAKEN)
                 .toList();
         model.addAttribute("activeLoans", active);
         return "pengurus/pinjamFasilitas";
@@ -93,14 +95,17 @@ public class PengurusController {
                     }
 
                     // Check for Lateness
-                    LocalDateTime deadline = LocalDateTime.of(peminjaman.getEndDate(), peminjaman.getEndTime() != null ? peminjaman.getEndTime() : java.time.LocalTime.MAX);
+                    LocalDateTime deadline = LocalDateTime.of(peminjaman.getEndDate(),
+                            peminjaman.getEndTime() != null ? peminjaman.getEndTime() : java.time.LocalTime.MAX);
                     if (now.isAfter(deadline)) {
                         peminjaman.setStatus(PeminjamanStatus.OVERDUE);
                         response.put("success", true);
-                        response.put("message", "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
+                        response.put("message",
+                                "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
                     } else {
                         response.put("success", true);
-                        response.put("message", "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
+                        response.put("message",
+                                "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
                     }
 
                     laporanRepository.save(laporan);
@@ -110,7 +115,7 @@ public class PengurusController {
                 response.put("message", "Data peminjaman tidak ditemukan.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error updating status API", e);
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
         }
@@ -153,7 +158,8 @@ public class PengurusController {
                     }
 
                     // Check for Lateness
-                    LocalDateTime deadline = LocalDateTime.of(peminjaman.getEndDate(), peminjaman.getEndTime() != null ? peminjaman.getEndTime() : java.time.LocalTime.MAX);
+                    LocalDateTime deadline = LocalDateTime.of(peminjaman.getEndDate(),
+                            peminjaman.getEndTime() != null ? peminjaman.getEndTime() : java.time.LocalTime.MAX);
                     if (now.isAfter(deadline)) {
                         peminjaman.setStatus(PeminjamanStatus.OVERDUE);
                         // Status set to OVERDUE for report, but feedback to Pengurus remains generic
@@ -169,8 +175,9 @@ public class PengurusController {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Error: " + e.getMessage() + ". Coba restart aplikasi atau hubungi admin.");
+            logger.error("Error updating status status", e);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error: " + e.getMessage() + ". Coba restart aplikasi atau hubungi admin.");
         }
 
         return "redirect:" + (redirectUrl != null && !redirectUrl.isEmpty() ? redirectUrl : "/pengurus/fasilitas");
@@ -182,9 +189,9 @@ public class PengurusController {
         // Filter for COMPLETED, REJECTED, TAKEN, RETURNED, or OVERDUE
         var history = all.stream()
                 .filter(p -> p.getStatus() == PeminjamanStatus.COMPLETED
-                || p.getStatus() == PeminjamanStatus.TAKEN
-                || p.getStatus() == PeminjamanStatus.RETURNED
-                || p.getStatus() == PeminjamanStatus.OVERDUE)
+                        || p.getStatus() == PeminjamanStatus.TAKEN
+                        || p.getStatus() == PeminjamanStatus.RETURNED
+                        || p.getStatus() == PeminjamanStatus.OVERDUE)
                 .sorted((p1, p2) -> p2.getId().compareTo(p1.getId())) // Newest first
                 .toList();
         model.addAttribute("historyLoans", history);
@@ -206,7 +213,8 @@ public class PengurusController {
             }
 
             // CRITICAL: Break the association before saving Peminjaman
-            // because CascadeType.ALL on Peminjaman might re-save/persist the Laporan we want to delete
+            // because CascadeType.ALL on Peminjaman might re-save/persist the Laporan we
+            // want to delete
             peminjaman.setLaporan(null);
             peminjamanService.save(peminjaman);
 
@@ -248,7 +256,8 @@ public class PengurusController {
             laporan.setSubmitted(true);
 
             // Save late reason to Laporan notes
-            if (peminjaman.getStatus() == PeminjamanStatus.OVERDUE && lateReason != null && !lateReason.trim().isEmpty()) {
+            if (peminjaman.getStatus() == PeminjamanStatus.OVERDUE && lateReason != null
+                    && !lateReason.trim().isEmpty()) {
                 laporan.setNotes(lateReason);
             }
 

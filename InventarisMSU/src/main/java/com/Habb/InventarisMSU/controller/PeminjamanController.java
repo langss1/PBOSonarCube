@@ -14,6 +14,8 @@ import java.util.List;
 @RequestMapping("/api/peminjaman")
 public class PeminjamanController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PeminjamanController.class);
+
     private final GuestBookingService guestBookingService;
 
     public PeminjamanController(GuestBookingService guestBookingService) {
@@ -62,7 +64,7 @@ public class PeminjamanController {
             return ResponseEntity.ok().body("{\"message\": \"Booking berhasil disimpan\"}");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error saving booking", e);
             return ResponseEntity.internalServerError().body("Error saving booking: " + e.getMessage());
         }
     }

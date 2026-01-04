@@ -4,9 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class EmailService implements NotificationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
     private JavaMailSender mailSender;
@@ -19,7 +23,7 @@ public class EmailService implements NotificationService {
             message.setText(text);
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("Failed to send email: " + e.getMessage());
+            logger.error("Failed to send email to {}: {}", to, e.getMessage(), e);
         }
     }
 
@@ -35,8 +39,7 @@ public class EmailService implements NotificationService {
 
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("Failed to send HTML email: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Failed to send HTML email to {}: {}", to, e.getMessage(), e);
         }
     }
 }

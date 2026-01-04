@@ -12,6 +12,9 @@ import java.util.Optional;
 @Configuration
 public class DatabaseSeeder {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DatabaseSeeder.class);
+    private static final String DEFAULT_PASSWORD = "password";
+
     @Bean
     public CommandLineRunner seedUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
@@ -22,20 +25,20 @@ public class DatabaseSeeder {
                     if (!"pengelola@msu.com".equals(user.getEmail())) {
                         user.setEmail("pengelola@msu.com");
                         userRepository.save(user);
-                        System.out.println("FIXED: Set email for PENGELOLA user to pengelola@msu.com");
+                        logger.info("FIXED: Set email for PENGELOLA user to pengelola@msu.com");
                     }
                 } else if (user.getRole() == com.Habb.InventarisMSU.model.Role.PENGURUS) {
                     if (!"pengurus@msu.com".equals(user.getEmail())) {
                         user.setEmail("pengurus@msu.com");
                         userRepository.save(user);
-                        System.out.println("FIXED: Set email for PENGURUS user to pengurus@msu.com");
+                        logger.info("FIXED: Set email for PENGURUS user to pengurus@msu.com");
                     }
                 }
             }
 
             // Standard password update if needed
-            updateUserPasswordIfPlainText(userRepository, passwordEncoder, "pengelola@msu.com", "password");
-            updateUserPasswordIfPlainText(userRepository, passwordEncoder, "pengurus@msu.com", "password");
+            updateUserPasswordIfPlainText(userRepository, passwordEncoder, "pengelola@msu.com", DEFAULT_PASSWORD);
+            updateUserPasswordIfPlainText(userRepository, passwordEncoder, "pengurus@msu.com", DEFAULT_PASSWORD);
         };
     }
 
@@ -52,9 +55,9 @@ public class DatabaseSeeder {
                 String encodedPassword = passwordEncoder.encode(plainPassword);
                 user.setPassword(encodedPassword);
                 userRepository.save(user);
-                System.out.println("UPDATED password for user: " + email);
+                logger.info("UPDATED password for user: {}", email);
             } else {
-                System.out.println("Password for user " + email + " already seems hashed or different.");
+                logger.info("Password for user {} already seems hashed or different.", email);
             }
         }
     }
