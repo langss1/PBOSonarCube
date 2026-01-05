@@ -126,7 +126,7 @@ public class PeminjamanService {
 
     private void sendApprovalEmail(Peminjaman p) {
         String subject = "Peminjaman Disetujui - Masjid Syamsul Ulum";
-        String htmlBody = buildEmailBody(p, "Disetujui",
+        String htmlBody = com.Habb.InventarisMSU.util.EmailHelper.buildStatusUpdateEmail(p, "Disetujui",
                 "Selamat, pengajuan peminjaman Anda telah <strong>DISETUJUI</strong> oleh pengelola.",
                 null);
         emailService.sendHtmlMessage(p.getEmail(), subject, htmlBody);
@@ -134,97 +134,10 @@ public class PeminjamanService {
 
     private void sendRejectionEmail(Peminjaman p, String reason) {
         String subject = "Peminjaman Ditolak - Masjid Syamsul Ulum";
-        String htmlBody = buildEmailBody(p, "Ditolak",
+        String htmlBody = com.Habb.InventarisMSU.util.EmailHelper.buildStatusUpdateEmail(p, "Ditolak",
                 "Mohon maaf, pengajuan peminjaman Anda <strong>DITOLAK</strong> oleh pengelola.",
                 reason);
         emailService.sendHtmlMessage(p.getEmail(), subject, htmlBody);
     }
 
-    private String buildEmailBody(Peminjaman p, String statusLabel, String message, String reason) {
-        String tanggalStr = p.getStartDate().toString();
-        String waktuStr = (p.getStartTime() != null ? p.getStartTime() : "00:00") + " s/d "
-                + (p.getEndTime() != null ? p.getEndTime() : "00:00") + " WIB";
-
-        // Items list
-        StringBuilder itemsHtml = new StringBuilder();
-        if (p.getDetails() != null) {
-            for (var d : p.getDetails()) {
-                itemsHtml.append(d.getItem().getName()).append(" (").append(d.getQuantity()).append("), ");
-            }
-        }
-        String itemsStr = itemsHtml.length() > 0 ? itemsHtml.substring(0, itemsHtml.length() - 2) : "-";
-
-        String reasonHtml = "";
-        if (reason != null && !reason.isEmpty()) {
-            reasonHtml = String.format("""
-                       <div class="summary-item" style="color: red;">
-                           <span class="label">Alasan</span>
-                           <span class="value">: %s</span>
-                       </div>
-                    """, reason);
-        }
-
-        return String.format(
-                "<!DOCTYPE html>\n" +
-                        "<html>\n" +
-                        "<head>\n" +
-                        "    <style>\n" +
-                        "        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }\n" +
-                        "        .header { margin-bottom: 20px; }\n" +
-                        "        .header-text h2 { margin: 0; color: #000; font-size: 18px; font-weight: bold; }\n" +
-                        "        .divider { border-top: 3px solid #d32f2f; margin: 15px 0; }\n" +
-                        "        .content { padding: 0 10px; }\n" +
-                        "        .summary-box { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }\n"
-                        +
-                        "        .summary-item { margin-bottom: 8px; display: flex; }\n" +
-                        "        .label { font-weight: bold; width: 120px; }\n" +
-                        "        .value { flex: 1; }\n" +
-                        "        .footer { margin-top: 30px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 10px; }\n"
-                        +
-                        "    </style>\n" +
-                        "</head>\n" +
-                        "<body>\n" +
-                        "    <div class=\"header\">\n" +
-                        "        <div style=\"font-weight: bold; font-size: 20px; color: #004d40;\">MASJID SYAMSUL ULUM</div>\n"
-                        +
-                        "        <div style=\"font-size: 12px;\">Jl. Telekomunikasi No.1, Bandung • Jawa Barat, Indonesia</div>\n"
-                        +
-                        "        <div style=\"font-size: 12px;\">Telp: +62 882-7982-9071 • Email: msu.telyu@gmail.com</div>\n"
-                        +
-                        "    </div>\n" +
-                        "    <div class=\"divider\"></div>\n" +
-                        "    <div class=\"content\">\n" +
-                        "        <p><strong>Halo, %s</strong></p>\n" +
-                        "        <p>%s</p>\n" +
-                        "        <div class=\"summary-box\">\n" +
-                        "            <div class=\"summary-item\">\n" +
-                        "                <span class=\"label\">Barang/Ruang</span>\n" +
-                        "                <span class=\"value\">: %s</span>\n" +
-                        "            </div>\n" +
-                        "            <div class=\"summary-item\">\n" +
-                        "                <span class=\"label\">Tanggal</span>\n" +
-                        "                <span class=\"value\">: %s</span>\n" +
-                        "            </div>\n" +
-                        "            <div class=\"summary-item\">\n" +
-                        "                <span class=\"label\">Waktu</span>\n" +
-                        "                <span class=\"value\">: %s</span>\n" +
-                        "            </div>\n" +
-                        "            <div class=\"summary-item\">\n" +
-                        "                <span class=\"label\">Status</span>\n" +
-                        "                <span class=\"value\" style=\"font-weight: bold;\">: %s</span>\n" +
-                        "            </div>\n" +
-                        "            %s\n" +
-                        "        </div>\n" +
-                        "        <p>Silakan hubungi kami jika ada pertanyaan.</p>\n" +
-                        "        <br>\n" +
-                        "        <p>Salam hangat,<br><strong>Pengelola MSU</strong></p>\n" +
-                        "    </div>\n" +
-                        "    <div class=\"footer\">\n" +
-                        "        &copy; 2025 Masjid Syamsul Ulum Telkom University.<br>\n" +
-                        "        Email ini dibuat secara otomatis.\n" +
-                        "    </div>\n" +
-                        "</body>\n" +
-                        "</html>",
-                p.getBorrowerName(), message, itemsStr, tanggalStr, waktuStr, statusLabel, reasonHtml);
-    }
 }

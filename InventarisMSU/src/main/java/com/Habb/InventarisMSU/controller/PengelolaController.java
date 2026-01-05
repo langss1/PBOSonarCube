@@ -68,9 +68,19 @@ public class PengelolaController {
 
     @PostMapping("/approval/update")
     public String updateStatus(@RequestParam("id") Long id, @RequestParam("status") String statusStr,
-            @RequestParam(value = "reason", required = false) String reason) {
-        PeminjamanStatus status = PeminjamanStatus.valueOf(statusStr);
-        peminjamanService.updateStatus(id, status, reason);
+            @RequestParam(value = "reason", required = false) String reason,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            PeminjamanStatus status = PeminjamanStatus.valueOf(statusStr);
+            peminjamanService.updateStatus(id, status, reason);
+            redirectAttributes.addFlashAttribute("successMessage", "Status berhasil diperbarui.");
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid status: {}", statusStr, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Status tidak valid.");
+        } catch (Exception e) {
+            logger.error("Error updating status", e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan: " + e.getMessage());
+        }
         return "redirect:/pengelola/approval";
     }
 

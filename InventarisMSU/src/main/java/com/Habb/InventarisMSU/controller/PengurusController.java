@@ -64,11 +64,11 @@ public class PengurusController {
     @org.springframework.web.bind.annotation.ResponseBody
     public java.util.Map<String, Object> updateStatusApi(@RequestParam("id") Long id,
             @RequestParam("action") String action) {
-        var status = PeminjamanStatus.valueOf(action);
-        var peminjaman = peminjamanService.getPeminjamanById(id);
         java.util.Map<String, Object> response = new java.util.HashMap<>();
-
         try {
+            var status = PeminjamanStatus.valueOf(action);
+            var peminjaman = peminjamanService.getPeminjamanById(id);
+
             if (peminjaman != null) {
                 String message = peminjamanService.updateStatusAndLaporan(id, status);
                 response.put("success", true);
@@ -77,6 +77,9 @@ public class PengurusController {
                 response.put("success", false);
                 response.put("message", "Data peminjaman tidak ditemukan.");
             }
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", "Status action tidak valid: " + action);
         } catch (Exception e) {
             logger.error("Error updating status API", e);
             response.put("success", false);
@@ -91,10 +94,11 @@ public class PengurusController {
             @RequestParam("action") String action,
             @RequestParam(value = "redirect", required = false) String redirectUrl,
             RedirectAttributes redirectAttributes) {
-        var status = PeminjamanStatus.valueOf(action);
-        var peminjaman = peminjamanService.getPeminjamanById(id);
 
         try {
+            var status = PeminjamanStatus.valueOf(action);
+            var peminjaman = peminjamanService.getPeminjamanById(id);
+
             if (peminjaman != null) {
                 String message = peminjamanService.updateStatusAndLaporan(id, status);
                 redirectAttributes.addFlashAttribute("successMessage", message);
