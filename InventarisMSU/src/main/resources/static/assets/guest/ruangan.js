@@ -25,7 +25,7 @@ function initCards() {
 
     // 1. Tentukan Max Stock (untuk ruang selalu 1 atau 0 dari server)
     let max = Number(card.dataset.max);
-    if (isNaN(max) || !card.hasAttribute('data-max')) {
+    if (Number.isNaN(max) || !card.hasAttribute('data-max')) {
       let val = Number(sisaEl.textContent.trim() || '1');
       if (Number.isNaN(val)) val = 1;
       // Clamp between 0 and 1 for rooms

@@ -2,7 +2,7 @@
 function parseMDY(s) {
   // Format di tabel: MM/DD/YYYY atau "-"
   if (!s || s.trim() === "-") return null;
-  const [m, d, y] = s.split("/").map((n) => parseInt(n, 10));
+  const [m, d, y] = s.split("/").map((n) => Number.parseInt(n, 10));
   if (!m || !d || !y) return null;
   return new Date(y, m - 1, d);
 }
@@ -48,7 +48,7 @@ function filterTable() {
   /* DATE FILTER LOGIC */
   const dStart = document.getElementById("dateStart")?.valueAsDate;
   const dEnd = document.getElementById("dateEnd")?.valueAsDate;
-  
+
   let from = null;
   let to = null;
 
@@ -152,7 +152,7 @@ window.addEventListener("load", () => {
     btnApplyDate.addEventListener("click", (e) => {
       e.preventDefault(); // Mencegah form submit jika ada dalam form (meski type=button aman)
       filterTable();
-      
+
       // Opsional: Tutup dropdown setelah apply (kalau pakai Bootstrap vanilla)
       // const dropdownEl = btnApplyDate.closest('.dropdown-menu');
       // if(dropdownEl) dropdownEl.classList.remove('show'); 
@@ -182,27 +182,27 @@ window.addEventListener("load", () => {
     // 1. Aggregate data from window.serverData
     const agg = {};
     const sourceData = window.serverData || [];
-    
+
     sourceData.forEach(item => {
-        const n = item.name;
-        const q = item.qty || 0;
-        if(!agg[n]) agg[n] = 0;
-        agg[n] += q;
+      const n = item.name;
+      const q = item.qty || 0;
+      if (!agg[n]) agg[n] = 0;
+      agg[n] += q;
     });
 
     // 2. Convert to array and sort
     const sorted = Object.keys(agg).map(key => {
-        return { name: key, qty: agg[key] };
-    }).sort((a,b) => b.qty - a.qty);
+      return { name: key, qty: agg[key] };
+    }).sort((a, b) => b.qty - a.qty);
 
     // 3. Take Top 10
     const top10 = sorted.slice(0, 10);
-    
+
     // 4. Map to arrays
     const chartLabels = top10.map(i => i.name);
     const chartData = top10.map(i => i.qty);
 
-    new Chart(ctx, {
+    const myChart = new Chart(ctx, {
       type: "bar",
       data: {
         labels: chartLabels,

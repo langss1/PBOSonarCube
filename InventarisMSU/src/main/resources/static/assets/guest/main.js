@@ -698,7 +698,7 @@ window.addEventListener('load', () => {
 
         if (timeMatch) {
           // Group 2: Start HH
-          startHour = parseInt(timeMatch[2], 10);
+          startHour = Number.parseInt(timeMatch[2], 10);
 
           const startFull = timeMatch[1]; // yyyy-mm-dd hh:mm
           const endFull = timeMatch[4];
@@ -713,7 +713,7 @@ window.addEventListener('load', () => {
 
           // Time Label logic (12:32 - 21:32)
           const fullStr = b.description.match(/\[Waktu:\s*([^\]]+)\]/)[1];
-          timeLabel = fullStr.replace(/\d{4}-\d{2}-\d{2}\s/g, '');
+          timeLabel = fullStr.replaceAll(/\d{4}-\d{2}-\d{2}\s/g, '');
         } else {
           // Legacy
           const sessionMatch = b.description.match(/\[Sesi:\s*([^\]]+)\]/);

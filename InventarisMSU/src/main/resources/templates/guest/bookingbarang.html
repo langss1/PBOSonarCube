@@ -73,7 +73,7 @@
           <div class="row g-3">
             <!-- Row 1: Telp (Left), Name (Right) -->
             <div class="col-md-6">
-              <label class="form-label">Nomor Telepon</label>
+              <label class="form-label" for="loanNumber">Nomor Telepon</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
                 <input type="text" class="form-control" id="loanNumber" placeholder="Contoh: 08123456789" required />
@@ -81,7 +81,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Penanggung jawab</label>
+              <label class="form-label" for="pjName">Penanggung jawab</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
                 <input type="text" class="form-control" id="pjName" placeholder="Nama lengkap" required />
@@ -91,7 +91,7 @@
 
             <!-- Row 2: NIM (Left), Email (Right) -->
             <div class="col-md-6">
-              <label class="form-label">NIM/NIP</label>
+              <label class="form-label" for="idNumber">NIM/NIP</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-hash"></i></span>
                 <input type="text" class="form-control" id="idNumber" placeholder="Contoh: 21573xxxxx" required />
@@ -99,7 +99,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Email</label>
+              <label class="form-label" for="email">Email</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                 <input type="email" class="form-control" id="email" placeholder="nama@contoh.ac.id" required />
@@ -109,7 +109,7 @@
 
             <!-- Row 3: Study Program (Full width based on image implication or kept as standard) -->
             <div class="col-12">
-              <label class="form-label">Program Studi / Unit</label>
+              <label class="form-label" for="studyProgram">Program Studi / Unit</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
                 <input type="text" class="form-control" id="studyProgram" placeholder="Sistem Informasi / Informatika"
@@ -120,7 +120,7 @@
 
             <!-- Row 4: Kegiatan -->
             <div class="col-12">
-              <label class="form-label">Kegiatan</label>
+              <label class="form-label" for="purpose">Kegiatan</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-clipboard-check"></i></span>
                 <input type="text" class="form-control" id="purpose" placeholder="Contoh: Kuliah Tamu / Seminar..."
@@ -131,7 +131,7 @@
 
             <!-- Row 5: Lokasi (New) -->
             <div class="col-12">
-              <label class="form-label">Lokasi Kegiatan</label>
+              <label class="form-label" for="location">Lokasi Kegiatan</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
                 <input type="text" class="form-control" id="location" placeholder="Masukkan lokasi kegiatan" required />
@@ -142,14 +142,14 @@
 
             <!-- WAKTU PEMINJAMAN -->
             <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Tanggal Pakai</label>
+              <label class="form-label text-primary fw-bold" for="startDate">Tanggal Pakai</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                 <input type="date" class="form-control" id="startDate" required />
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Jam Pakai</label>
+              <label class="form-label text-primary fw-bold" for="startTime">Jam Pakai</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-clock"></i></span>
                 <input type="time" class="form-control" id="startTime" required />
@@ -157,14 +157,14 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Tanggal Kembali</label>
+              <label class="form-label text-primary fw-bold" for="endDate">Tanggal Kembali</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                 <input type="date" class="form-control" id="endDate" required />
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Jam Kembali</label>
+              <label class="form-label text-primary fw-bold" for="endTime">Jam Kembali</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-clock"></i></span>
                 <input type="time" class="form-control" id="endTime" required />
@@ -182,12 +182,12 @@
               <label class="form-label fw-bold"><i class="bi bi-cloud-arrow-up me-1"></i> Upload Dokumen</label>
               <div class="row g-3">
                 <div class="col-md-6">
-                  <label class="form-label small">Proposal Kegiatan</label>
+                  <label class="form-label small" for="requirements">Proposal Kegiatan</label>
                   <input class="form-control" type="file" id="requirements" accept=".pdf" required>
                   <div class="form-text">Wajib PDF (max 10MB).</div>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label small">Identitas Peminjam (KTM/KTP/SIM)</label>
+                  <label class="form-label small" for="identityFile">Identitas Peminjam (KTM/KTP/SIM)</label>
                   <input class="form-control" type="file" id="identityFile" accept=".jpg,.jpeg,.png,.pdf" required>
                   <div class="form-text">Wajib format gambar (JPG, PNG).</div>
                 </div>
@@ -195,7 +195,7 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label">Deskripsi Kegiatan</label>
+              <label class="form-label" for="longPurpose">Deskripsi Kegiatan</label>
               <textarea id="longPurpose" class="form-control" rows="4"
                 placeholder="Tuliskan detail deskripsi kegiatan..." required></textarea>
               <div class="invalid-feedback">Wajib diisi.</div>
@@ -237,7 +237,7 @@
               <div class="form-text mt-2">Scan untuk donasi. Terima kasih 🙏</div>
             </div>
             <div class="col-md-7">
-              <label class="form-label">Nominal Donasi</label>
+              <label class="form-label" for="donationAmount">Nominal Donasi</label>
               <div class="d-flex flex-wrap gap-2 mb-2">
                 <button type="button" class="btn btn-outline-success btn-sm btn-donasi"
                   data-amt="10000">Rp10.000</button>

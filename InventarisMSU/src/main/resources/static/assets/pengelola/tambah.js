@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.classList.add("was-validated");
         return;
       }
-      stockHidden.value = parseInt(stokVal, 10) || 0;
+      stockHidden.value = Number.parseInt(stokVal, 10) || 0;
       if (capacityHidden) capacityHidden.value = 0; // Reset capacity for BARANG
     } else {
       const kapVal = (inpKapasitas.value || "").trim();
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       // Untuk RUANGAN: stock = 1, capacity = input
       stockHidden.value = 1;
-      if (capacityHidden) capacityHidden.value = parseInt(kapVal, 10) || 0;
+      if (capacityHidden) capacityHidden.value = Number.parseInt(kapVal, 10) || 0;
     }
 
     form.classList.add("was-validated");

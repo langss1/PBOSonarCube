@@ -153,9 +153,6 @@
 	<nav class="navbar navbar-expand-lg fixed-top shadow-soft bg-white">
 		<div class="container">
 			<a class="navbar-brand" th:href="@{/pengelola/beranda}">
-			<a class="navbar-brand" th:href="@{/pengelola/beranda}">
-				<img th:src="@{/assets/guest/loogoo.png}" alt="Logo MSU" style="height: 45px" />
-			</a>
 			</a>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
 				<span class="navbar-toggler-icon"></span>
@@ -181,7 +178,7 @@
 					<button class="btn btn-outline-secondary d-flex align-items-center rounded-pill px-3 py-1 border-0"
 						type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 					<button class="btn btn-outline-secondary d-flex align-items-center rounded-pill px-3 py-1 border-0"
-						type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+						type="button" id="userMenuButtonApproval" data-bs-toggle="dropdown" aria-expanded="false">
 						<img id="userAvatar" th:src="@{/assets/guest/loogoo.png}" alt="User"
 							class="rounded-circle me-2" width="32" height="32" />
 						<div class="text-start">
@@ -475,17 +472,18 @@
 					</div>
 
 					<div class="mb-3">
-						<label class="text-muted small fw-bold text-uppercase">Nama Lengkap</label>
+					<div class="mb-3">
+						<label for="modalNama" class="text-muted small fw-bold text-uppercase">Nama Lengkap</label>
 						<div id="modalNama" class="fs-5 fw-bold text-dark"></div>
 					</div>
 
 					<div class="row g-3 mb-3">
 						<div class="col-6">
-							<label class="text-muted small fw-bold text-uppercase">NIM / NIP</label>
+							<label for="modalNim" class="text-muted small fw-bold text-uppercase">NIM / NIP</label>
 							<div id="modalNim" class="fs-6 fw-medium text-dark"></div>
 						</div>
 						<div class="col-6">
-							<label class="text-muted small fw-bold text-uppercase">Unit / Departemen</label>
+							<label for="modalUnit" class="text-muted small fw-bold text-uppercase">Unit / Departemen</label>
 							<div id="modalUnit" class="fs-6 fw-medium text-dark"></div>
 						</div>
 					</div>
@@ -559,7 +557,7 @@
 			const waBtn = document.getElementById('modalWaLink');
 			if (phone) {
 				// Basic formatting for WA (remove non-digits, add 62 if 08)
-				let p = phone.replace(/\D/g, '');
+				let p = phone.replaceAll(/\D/g, '');
 				if (p.startsWith('0')) p = '62' + p.substring(1);
 				waBtn.href = 'https://wa.me/' + p;
 				waBtn.classList.remove('disabled');

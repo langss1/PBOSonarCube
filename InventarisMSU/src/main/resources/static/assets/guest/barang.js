@@ -133,7 +133,7 @@ function initCards() {
 
     // 1. Tentukan Max Stock (dari HTML server saat pertama load)
     let max = Number(card.dataset.max);
-    if (isNaN(max) || !card.hasAttribute('data-max')) {
+    if (Number.isNaN(max) || !card.hasAttribute('data-max')) {
       // Belum ada dataset, berarti ini load pertama/fresh
       max = Number(sisaEl.textContent.trim() || '0');
       if (Number.isNaN(max)) max = 0;

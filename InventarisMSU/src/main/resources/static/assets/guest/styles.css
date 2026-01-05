@@ -471,7 +471,6 @@ body {
   margin-top: 4px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  -webkit-line-clamp: 2;
   /* Explicit dup for some browsers maybe? Just keep it standard */
   /* Fallback logic mostly handled by browsers, just stick to standard webkit box */
   -webkit-box-orient: vertical;
