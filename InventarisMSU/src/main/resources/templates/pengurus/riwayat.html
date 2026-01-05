@@ -1,162 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Riwayat Peminjaman</title>
-
-    <!-- Bootstrap 5 & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-
-    <!-- Font: Inter -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" />
-    <link rel="icon" th:href="@{/assets/guest/loogoo.png}">
-
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: "Inter", sans-serif;
-            color: #333;
-        }
-
-        /* Navbar */
-        .navbar {
-            background-color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .navbar-nav .nav-link {
-            color: #2fa16c;
-            font-weight: 600;
-            margin: 0 10px;
-            transition: color 0.2s ease;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: #0b492c;
-        }
-
-        .navbar-nav .nav-link.active {
-            color: #0b492c !important;
-        }
-
-        /* Card & Table */
-        .card-table {
-            border: none;
-            border-radius: 16px;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            padding: 0;
-        }
-
-        .table thead th {
-            background-color: #f1f4f2;
-            color: #0b492c;
-            font-weight: 600;
-            border-bottom: 2px solid #e9ecef;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-            padding: 1rem;
-        }
-
-        .table tbody td {
-            padding: 1rem;
-            vertical-align: middle;
-            color: #555;
-        }
-
-        .page-title {
-            font-weight: 700;
-            color: #0b492c;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Badges */
-        .badge-status {
-            padding: 0.5em 1em;
-            border-radius: 50rem;
-            font-weight: 500;
-            font-size: 0.75rem;
-            background-color: #e9ecef;
-            /* default */
-            color: #333;
-        }
-
-        .badge-completed {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .badge-rejected {
-            background-color: #f8d7da;
-            color: #842029;
-        }
-
-        .badge-taken {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-    </style>
+<head th:replace="~{fragments/pengurus_layout :: head(title='Riwayat Peminjaman')}">
 </head>
 
 <body style="padding-top: 80px;">
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" th:href="@{/pengurus/dashboard}">
-                <a class="navbar-brand" th:href="@{/pengurus/dashboard}">
-                    <img th:src="@{/assets/guest/loogoo.png}" alt="Logo" style="height: 45px" />
-                </a>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse justify-content-end" id="navmenu">
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/pengurus/dashboard}">Beranda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/pengurus/fasilitas}">Peminjaman Ruangan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" th:href="@{/pengurus/riwayat}">Riwayat Peminjaman</a>
-                    </li>
-                </ul>
-
-                <!-- USER DROPDOWN -->
-                <div class="ms-3 dropdown">
-                    <button class="btn btn-outline-secondary d-flex align-items-center rounded-pill px-3 py-1 border-0"
-                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <button
-                            class="btn btn-outline-secondary d-flex align-items-center rounded-pill px-3 py-1 border-0"
-                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img th:src="@{/assets/pengurus/Assets/gedung.png}" alt="User" class="rounded-circle me-2"
-                                width="32" height="32" />
-                            <div class="text-start">
-                                <div class="text-start">
-                                    <div class="fw-semibold text-dark small">Pengurus</div>
-                                    <div class="text-muted" style="font-size: 0.75rem">Pengurus Side</div>
-                                </div>
-                                <i class="bi bi-chevron-down ms-2 small"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end mt-2 shadow-sm border-0 rounded-4">
-                            <li>
-                                <a class="dropdown-item text-danger rounded-3" th:href="@{/logout}">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Keluar
-                                </a>
-                            </li>
-                        </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/pengurus_layout :: navbar(activePage='riwayat')}"></nav>
 
     <div class="container pb-5">
         <div class="d-flex justify-content-between align-items-center mb-4 mt-4">
@@ -300,34 +151,9 @@
     </div>
 
     <!-- TOAST NOTIFICATION CONTAINER -->
-    <style>
-        .toast-progress {
-            height: 5px;
-            background-color: #198754;
-            width: 100%;
-            transition: width 3s linear;
-        }
-    </style>
+    <div th:replace="~{fragments/pengurus_layout :: toast_container}"></div>
 
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999">
-        <div id="liveToast" class="toast border-0 shadow-lg align-items-center" role="alert" aria-live="assertive"
-            aria-atomic="true" style="min-width: 350px; overflow: hidden; border-radius: 0.5rem;">
-            <div class="d-flex p-3 bg-white">
-                <div class="me-3 display-6 text-success">
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
-                <div class="toast-body p-0 d-flex flex-column justify-content-center text-dark flex-grow-1">
-                    <span id="toastMessage" class="fw-semibold" style="font-size: 0.95rem; line-height: 1.4;"></span>
-                </div>
-                <button type="button" class="btn-close ms-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <!-- Countdown Progress Bar -->
-            <div id="toastProgressBar" class="toast-progress"></div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div th:replace="~{fragments/pengurus_layout :: scripts}"></div>
 
     <script th:inline="javascript">
         /*<![CDATA[*/
