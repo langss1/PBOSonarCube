@@ -450,7 +450,7 @@ function buildTabsFromCart() {
         const panelId = `panel-${idx}`;
 
         // Tab header (horizontal)
-        const li = document.createElement('li');
+        const li = document.createElement('div');
         li.className = 'nav-item';
         li.innerHTML = `
       <button class="nav-link ${idx === 0 ? 'active' : ''}" id="${tabId}"

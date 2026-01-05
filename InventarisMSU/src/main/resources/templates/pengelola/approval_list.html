@@ -436,8 +436,8 @@
                         <p class="text-muted small mb-3">Mohon berikan alasan penolakan agar peminjam dapat memahaminya.
                         </p>
                         <div class="mb-3">
-                            <label for="rejectionReason" class="form-label fw-semibold">Alasan Penolakan</label>
-                            <textarea class="form-control bg-light" name="reason" id="rejectionReason" rows="3"
+                            <label for="rejectionReasonList" class="form-label fw-semibold">Alasan Penolakan</label>
+                            <textarea class="form-control bg-light" name="reason" id="rejectionReasonList" rows="3"
                                 placeholder="Contoh: Barang sedang dalam perbaikan..." required
                                 style="border-radius: 12px;"></textarea>
                         </div>
@@ -577,7 +577,7 @@
             const noKtpMsg = document.getElementById('modalNoKtp');
 
             if (ktpPath && ktpPath !== 'null') {
-                let cleanPath = ktpPath.replaceAll(/\\/g, '/');
+                let cleanPath = ktpPath.replaceAll('\\', '/');
                 if (!cleanPath.startsWith('/')) {
                     cleanPath = '/' + cleanPath;
                 }
