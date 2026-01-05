@@ -1,0 +1,199 @@
+<!-- FRAGMENTS: Modals for Pengelola Pages -->
+<div th:fragment="approval_modals">
+    <!-- MODAL PENOLAKAN -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-strong">
+                <form th:action="@{/pengelola/approval/update}" method="post">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Tolak Pengajuan
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="rejectionSubmissionId" />
+                        <input type="hidden" name="status" value="REJECTED" />
+                        <p class="text-muted small mb-3">Mohon berikan alasan penolakan agar peminjam dapat memahaminya.
+                        </p>
+                        <div class="mb-3">
+                            <label for="rejectionReason" class="form-label fw-semibold">Alasan Penolakan</label>
+                            <textarea class="form-control bg-light" name="reason" id="rejectionReason" rows="3"
+                                placeholder="Contoh: Barang sedang dalam perbaikan..." required
+                                style="border-radius: 12px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                            data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Tolak Pengajuan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SETUJU -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-strong">
+                <form th:action="@{/pengelola/approval/update}" method="post">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-success">
+                            <i class="bi bi-check-circle me-2"></i>Konfirmasi Persetujuan
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <input type="hidden" name="id" id="approvalSubmissionId" />
+                        <input type="hidden" name="status" value="APPROVED" />
+                        <div class="mb-3">
+                            <i class="bi bi-question-circle display-4 text-success opacity-50"></i>
+                        </div>
+                        <p class="mb-0 fw-medium">Apakah Anda yakin ingin menyetujui pengajuan ini?</p>
+                        <p class="text-muted small">Tindakan ini akan mengubah status pengajuan menjadi disetujui.</p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 justify-content-center pb-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                            data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success rounded-pill px-4">Ya, Setuju</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PROFILE -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-strong">
+                <div class="modal-header bg-primary text-white border-0 rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-person-vcard me-2"></i>Detail Peminjam
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="small text-muted mb-2 d-block">Foto Identitas (KTP)</div>
+                        <div class="bg-light rounded-3 d-flex align-items-center justify-content-center overflow-hidden border"
+                            style="width: 100%; height: 200px; max-width: 320px; margin: 0 auto;">
+                            <img id="modalKtpImage" src="" alt="KTP" class="img-fluid"
+                                style="max-height: 100%; object-fit: contain;">
+                            <span id="modalNoKtp" class="text-muted small fst-italic d-none">Tidak ada foto KTP</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="mb-3">
+                            <label for="modalNama" class="text-muted small fw-bold text-uppercase">Nama Lengkap</label>
+                            <div id="modalNama" class="fs-5 fw-bold text-dark"></div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label for="modalNim" class="text-muted small fw-bold text-uppercase">NIM / NIP</label>
+                                <div id="modalNim" class="fs-6 fw-medium text-dark"></div>
+                            </div>
+                            <div class="col-6">
+                                <label for="modalUnit" class="text-muted small fw-bold text-uppercase">Unit /
+                                    Departemen</label>
+                                <div id="modalUnit" class="fs-6 fw-medium text-dark"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-light rounded-3 p-3 border">
+                            <div class="text-muted small fw-bold text-uppercase mb-2">Kontak</div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-envelope text-secondary me-2"></i>
+                                <span id="modalEmail" class="text-dark"></span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <i class="bi bi-whatsapp text-success me-2"></i>
+                                    <span id="modalPhone" class="text-dark"></span>
+                                </div>
+                                <a id="modalWaLink" href="#" target="_blank"
+                                    class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                    Chat
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill w-100"
+                        data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:fragment="approval_scripts">
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    function openRejectionModal(id) {
+        document.getElementById('rejectionSubmissionId').value = id;
+        var myModal = new bootstrap.Modal(document.getElementById('rejectionModal'));
+        myModal.show();
+    }
+
+    function openApprovalModal(id) {
+        document.getElementById('approvalSubmissionId').value = id;
+        var myModal = new bootstrap.Modal(document.getElementById('approvalModal'));
+        myModal.show();
+    }
+
+    function openProfileModal(nama, nim, unit, phone, email, ktpPath) {
+        document.getElementById('modalNama').textContent = nama || '-';
+        document.getElementById('modalNim').textContent = nim || '-';
+        document.getElementById('modalUnit').textContent = unit || '-';
+        document.getElementById('modalPhone').textContent = phone || '-';
+        document.getElementById('modalEmail').textContent = email || '-';
+
+        const ktpImg = document.getElementById('modalKtpImage');
+        const noKtpMsg = document.getElementById('modalNoKtp');
+
+        if (ktpPath && ktpPath !== 'null') {
+            // Fix path separator if needed
+            let cleanPath = ktpPath.replaceAll('\\', '/');
+            if (!cleanPath.startsWith('/')) {
+                cleanPath = '/' + cleanPath;
+            }
+            // However, for consistency with existing code (which assumes /uploads/ prefix or relative path)
+            // We'll stick to a robust check. If it already has /uploads, use it, else prepend.
+            // Actually, the previous code was: ktpImg.src = '/uploads/' + ktpPath; in one file
+            // and ktpImg.src = cleanPath; in another (where cleanPath was passed).
+            // Let's standardise to assuming the path is relative to context or is a full path.
+
+            // Safest bet based on observation:
+            ktpImg.src = cleanPath.includes('/uploads/') ? cleanPath : '/uploads/' + cleanPath.replace(/^\//, '');
+
+            ktpImg.classList.remove('d-none');
+            noKtpMsg.classList.add('d-none');
+        } else {
+            ktpImg.classList.add('d-none');
+            noKtpMsg.classList.remove('d-none');
+        }
+
+        // WA Link
+        const waBtn = document.getElementById('modalWaLink');
+        if (phone) {
+            let p = phone.replaceAll(/\D/g, '');
+            if (p.startsWith('0')) p = '62' + p.substring(1);
+            waBtn.href = 'https://wa.me/' + p;
+            waBtn.classList.remove('disabled');
+        } else {
+            waBtn.href = '#';
+            waBtn.classList.add('disabled');
+        }
+
+        var myModal = new bootstrap.Modal(document.getElementById('profileModal'));
+        myModal.show();
+    }
+</script>
