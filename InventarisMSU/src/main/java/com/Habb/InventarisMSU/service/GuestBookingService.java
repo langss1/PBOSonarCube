@@ -1,6 +1,7 @@
 package com.Habb.InventarisMSU.service;
 
 import com.Habb.InventarisMSU.dto.*;
+import com.Habb.InventarisMSU.util.EmailHelper;
 import com.Habb.InventarisMSU.model.*;
 import com.Habb.InventarisMSU.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,18 +34,22 @@ public class GuestBookingService {
     }
 
     @Transactional
-    public void submitBooking(BookingRequestDTO req, MultipartFile file, MultipartFile identityFile) throws Exception {
+    public void submitBooking(BookingRequestDTO req, MultipartFile file, MultipartFile identityFile)
+            throws IOException {
         Path uploadDir = Paths.get(UPLOAD_DIR);
         if (!Files.exists(uploadDir))
             Files.createDirectories(uploadDir);
 
         // 1. Save Proposal File
-        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String originalName = org.springframework.util.StringUtils.cleanPath(file.getOriginalFilename());
+        String fileName = UUID.randomUUID().toString() + "_" + originalName;
         Path filePath = uploadDir.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);
 
         // 2. Save Identity File
-        String identityFileName = UUID.randomUUID().toString() + "_" + identityFile.getOriginalFilename();
+        String identityOriginalName = org.springframework.util.StringUtils
+                .cleanPath(identityFile.getOriginalFilename());
+        String identityFileName = UUID.randomUUID().toString() + "_" + identityOriginalName;
         Path identityFilePath = uploadDir.resolve(identityFileName);
         Files.copy(identityFile.getInputStream(), identityFilePath);
 
@@ -81,8 +86,12 @@ public class GuestBookingService {
         });
         List<PeminjamanDetail> details = new ArrayList<>();
 
+        List<String> itemNames = cartItems.stream().map(CartItem::getName).collect(Collectors.toList());
+        List<Item> foundItems = itemRepository.findByNameIn(itemNames);
+        Map<String, Item> itemMap = foundItems.stream().collect(Collectors.toMap(Item::getName, i -> i, (a, b) -> a));
+
         for (CartItem ci : cartItems) {
-            Item item = itemRepository.findByName(ci.getName());
+            Item item = itemMap.get(ci.getName());
             if (item != null) {
                 PeminjamanDetail pd = new PeminjamanDetail();
                 pd.setPeminjaman(p);
@@ -102,83 +111,7 @@ public class GuestBookingService {
 
     private void sendBookingConfirmationEmail(Peminjaman p) {
         String subject = "Konfirmasi Peminjaman Fasilitas - Masjid Syamsul Ulum";
-
-        // Formatted dates/times for email
-        String tanggalStr = p.getStartDate().toString(); // You might want to format this nicely
-        String waktuStr = p.getStartTime() + " s/d " + p.getEndTime() + " WIB";
-
-        String htmlBody = String.format(
-                "<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "<head>\n" +
-                "    <style>\n" +
-                "        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }\n" +
-                "        .header { margin-bottom: 20px; }\n" +
-                "        .header img { max-height: 60px; float: left; margin-right: 15px; }\n" +
-                "        .header-text { overflow: hidden; }\n" +
-                "        .header-text h2 { margin: 0; color: #000; font-size: 18px; font-weight: bold; }\n" +
-                "        .header-text p { margin: 2px 0; font-size: 12px; color: #555; }\n" +
-                "        .divider { border-top: 3px solid #d32f2f; margin: 15px 0; }\n" +
-                "        .content { padding: 0 10px; }\n" +
-                "        .summary-box { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }\n" +
-                "        .summary-item { margin-bottom: 8px; display: flex; }\n" +
-                "        .label { font-weight: bold; width: 120px; }\n" +
-                "        .value { flex: 1; }\n" +
-                "        .footer { margin-top: 30px; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 10px; }\n" +
-                "    </style>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "    <div class=\"header\">\n" +
-                "        <!-- Placeholder for Logo if needed, or just text -->\n" +
-                "        <div style=\"font-weight: bold; font-size: 20px; color: #004d40;\">MASJID SYAMSUL ULUM</div>\n" +
-                "        <div style=\"font-size: 12px;\">Jl. Telekomunikasi No.1, Bandung • Jawa Barat, Indonesia</div>\n" +
-                "        <div style=\"font-size: 12px;\">Telp: +62 882-7982-9071 • Email: msu.telyu@gmail.com</div>\n" +
-                "    </div>\n" +
-                "\n" +
-                "    <div class=\"divider\"></div>\n" +
-                "\n" +
-                "    <div class=\"content\">\n" +
-                "        <p><strong>Halo, %s</strong></p>\n" +
-                "\n" +
-                "        <p>Terima kasih telah melakukan peminjaman fasilitas di Masjid Syamsul Ulum. Permohonan Anda telah kami terima dan saat ini sedang dalam proses peninjauan oleh pengelola.</p>\n" +
-                "\n" +
-                "        <p>Berikut adalah ringkasan permohonan Anda:</p>\n" +
-                "\n" +
-                "        <div class=\"summary-box\">\n" +
-                "            <div class=\"summary-item\">\n" +
-                "                <span class=\"label\">Keperluan</span>\n" +
-                "                <span class=\"value\">: %s</span>\n" +
-                "            </div>\n" +
-                "            <div class=\"summary-item\">\n" +
-                "                <span class=\"label\">Tanggal</span>\n" +
-                "                <span class=\"value\">: %s</span>\n" +
-                "            </div>\n" +
-                "            <div class=\"summary-item\">\n" +
-                "                <span class=\"label\">Waktu</span>\n" +
-                "                <span class=\"value\">: %s</span>\n" +
-                "            </div>\n" +
-                "            <div class=\"summary-item\">\n" +
-                "                <span class=\"label\">Status</span>\n" +
-                "                <span class=\"value\" style=\"font-weight: bold;\">: Menunggu Persetujuan</span>\n" +
-                "            </div>\n" +
-                "        </div>\n" +
-                "\n" +
-                "        <p>Kami akan memberitahukan status selanjutnya melalui email ini setelah permohonan Anda ditinjau.</p>\n" +
-                "\n" +
-                "        <p>Terima kasih atas perhatian dan kerjasamanya.</p>\n" +
-                "\n" +
-                "        <br>\n" +
-                "        <p>Salam hangat,<br><strong>Pengelola MSU</strong></p>\n" +
-                "    </div>\n" +
-                "\n" +
-                "    <div class=\"footer\">\n" +
-                "        &copy; 2025 Masjid Syamsul Ulum Telkom University. All rights reserved.<br>\n" +
-                "        Email ini dibuat secara otomatis, mohon tidak membalas email ini.\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>",
-                p.getBorrowerName(), p.getReason(), tanggalStr, waktuStr);
-
+        String htmlBody = EmailHelper.buildBookingConfirmationEmail(p);
         emailService.sendHtmlMessage(p.getEmail(), subject, htmlBody);
     }
 
@@ -276,8 +209,9 @@ public class GuestBookingService {
 
             for (Peminjaman p : overlapping) {
                 // Only count APPROVED or TAKEN (active) bookings
-                boolean isActive = (p.getStatus() == PeminjamanStatus.APPROVED || p.getStatus() == PeminjamanStatus.TAKEN);
-                
+                boolean isActive = (p.getStatus() == PeminjamanStatus.APPROVED
+                        || p.getStatus() == PeminjamanStatus.TAKEN);
+
                 if (isActive && isTimeOverlapping(reqStart, reqEnd, p)) {
                     if (p.getDetails() != null) {
                         for (PeminjamanDetail pd : p.getDetails()) {

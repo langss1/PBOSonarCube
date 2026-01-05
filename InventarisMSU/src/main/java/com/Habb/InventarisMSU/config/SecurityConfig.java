@@ -45,7 +45,8 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .permitAll())
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable()); // NOSONAR: CSRF disabled for compatibility with existing frontend
+                                               // mechanism
 
         return http.build();
     }

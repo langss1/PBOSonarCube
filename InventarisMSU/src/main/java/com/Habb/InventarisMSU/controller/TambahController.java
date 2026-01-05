@@ -55,7 +55,7 @@ public class TambahController {
                 }
 
                 // Generate unique filename
-                String originalName = imageFile.getOriginalFilename();
+                String originalName = org.springframework.util.StringUtils.cleanPath(imageFile.getOriginalFilename());
                 String ext = "";
                 if (originalName != null && originalName.contains(".")) {
                     ext = originalName.substring(originalName.lastIndexOf("."));

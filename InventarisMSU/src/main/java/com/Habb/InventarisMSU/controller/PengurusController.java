@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/pengurus")
@@ -71,45 +70,9 @@ public class PengurusController {
 
         try {
             if (peminjaman != null) {
-                peminjaman.setStatus(status);
-                peminjamanService.save(peminjaman);
-
-                // Handle Laporan Realtime Update
-                Laporan laporan = laporanRepository.findByPeminjamanId(id);
-                if (laporan == null) {
-                    laporan = new Laporan();
-                    laporan.setPeminjaman(peminjaman);
-                }
-
-                if (status == PeminjamanStatus.TAKEN) {
-                    laporan.setPickedUpAt(LocalDateTime.now());
-                    laporanRepository.save(laporan);
-                    response.put("success", true);
-                    response.put("message", "Fasilitas berhasil diambil. Jangan lupa mintakan kartu identitas.");
-                } else if (status == PeminjamanStatus.RETURNED) {
-                    LocalDateTime now = LocalDateTime.now();
-                    laporan.setReturnedAt(now);
-
-                    if (laporan.getPickedUpAt() == null) {
-                        laporan.setPickedUpAt(now);
-                    }
-
-                    // Check for Lateness
-                    LocalDateTime deadline = LocalDateTime.of(peminjaman.getEndDate(),
-                            peminjaman.getEndTime() != null ? peminjaman.getEndTime() : java.time.LocalTime.MAX);
-                    if (now.isAfter(deadline)) {
-                        peminjaman.setStatus(PeminjamanStatus.OVERDUE);
-                        response.put("success", true);
-                        response.put("message",
-                                "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
-                    } else {
-                        response.put("success", true);
-                        response.put("message",
-                                "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
-                    }
-
-                    laporanRepository.save(laporan);
-                }
+                String message = peminjamanService.updateStatusAndLaporan(id, status);
+                response.put("success", true);
+                response.put("message", message);
             } else {
                 response.put("success", false);
                 response.put("message", "Data peminjaman tidak ditemukan.");
@@ -133,46 +96,8 @@ public class PengurusController {
 
         try {
             if (peminjaman != null) {
-                peminjaman.setStatus(status);
-                peminjamanService.save(peminjaman);
-
-                // Handle Laporan Realtime Update
-                Laporan laporan = laporanRepository.findByPeminjamanId(id);
-                if (laporan == null) {
-                    laporan = new Laporan();
-                    laporan.setPeminjaman(peminjaman);
-                }
-
-                if (status == PeminjamanStatus.TAKEN) {
-                    laporan.setPickedUpAt(LocalDateTime.now());
-                    laporanRepository.save(laporan);
-                    redirectAttributes.addFlashAttribute("successMessage",
-                            "Fasilitas berhasil diambil. Jangan lupa mintakan kartu identitas sebagai bukti peminjaman");
-                } else if (status == PeminjamanStatus.RETURNED) {
-                    LocalDateTime now = LocalDateTime.now();
-                    laporan.setReturnedAt(now);
-
-                    // If skipped "Taken" step, set pickedUpAt to same time
-                    if (laporan.getPickedUpAt() == null) {
-                        laporan.setPickedUpAt(now);
-                    }
-
-                    // Check for Lateness
-                    LocalDateTime deadline = LocalDateTime.of(peminjaman.getEndDate(),
-                            peminjaman.getEndTime() != null ? peminjaman.getEndTime() : java.time.LocalTime.MAX);
-                    if (now.isAfter(deadline)) {
-                        peminjaman.setStatus(PeminjamanStatus.OVERDUE);
-                        // Status set to OVERDUE for report, but feedback to Pengurus remains generic
-                        redirectAttributes.addFlashAttribute("successMessage",
-                                "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
-                    } else {
-                        // Default logic
-                        redirectAttributes.addFlashAttribute("successMessage",
-                                "Fasilitas berhasil dikembalikan. Jangan lupa kembalikan kartu identitas sebagai bukti pengembalian");
-                    }
-
-                    laporanRepository.save(laporan);
-                }
+                String message = peminjamanService.updateStatusAndLaporan(id, status);
+                redirectAttributes.addFlashAttribute("successMessage", message);
             }
         } catch (Exception e) {
             logger.error("Error updating status status", e);

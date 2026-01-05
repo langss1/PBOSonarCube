@@ -85,7 +85,6 @@ public class PengelolaController {
     @GetMapping("/laporan")
     public String laporan(Model model) {
         // Fetch all data for the table
-        // Fetch all data for the table
         List<Peminjaman> all = peminjamanRepository.findAll();
         // Filter out REJECTED and PENDING status as requested
         List<Peminjaman> filtered = all.stream()
