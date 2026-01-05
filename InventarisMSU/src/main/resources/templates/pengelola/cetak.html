@@ -171,10 +171,7 @@
 	<div class="container shadow-sm border receipt-card">
 		<!-- KOP SURAT -->
 		<header class="kop-surat">
-		<!-- KOP SURAT -->
-		<header class="kop-surat">
 			<img th:src="@{/assets/guest/loogoo.png}" alt="Logo" class="kop-logo" />
-			<div class="kop-text">
 			<div class="kop-text">
 				<div class="kop-instansi">MASJID SYAMSUL ULUM</div>
 				<div class="kop-sub">Telkom University, Bandung, Jawa Barat</div>
@@ -194,24 +191,24 @@
 		<div class="content">
 			<p>Dengan ini menerangkan bahwa permohonan peminjaman ruangan/barang yang diajukan oleh:</p>
 
-			<table class="info-table mb-4">
+			<table class="info-table mb-4" role="presentation">
 				<tr>
-					<td class="info-label">Nama Peminjam</td>
+					<th scope="row" class="info-label">Nama Peminjam</th>
 					<td class="info-sep">:</td>
 					<td th:text="${peminjaman.borrowerName}">Nama Lengkap</td>
 				</tr>
 				<tr>
-					<td class="info-label">Unit / Dept</td>
+					<th scope="row" class="info-label">Unit / Dept</th>
 					<td class="info-sep">:</td>
 					<td th:text="${peminjaman.department}">Departemen</td>
 				</tr>
 				<tr>
-					<td class="info-label">Tanggal Pengajuan</td>
+					<th scope="row" class="info-label">Tanggal Pengajuan</th>
 					<td class="info-sep">:</td>
 					<td th:text="${#temporals.format(peminjaman.startDate, 'dd MMMM yyyy')}">Tanggal</td>
 				</tr>
 				<tr>
-					<td class="info-label">Status</td>
+					<th scope="row" class="info-label">Status</th>
 					<td class="info-sep">:</td>
 					<td>
 						<span
@@ -220,7 +217,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="info-label">Keperluan</td>
+					<th scope="row" class="info-label">Keperluan</th>
 					<td class="info-sep">:</td>
 					<td th:text="${peminjaman.reason}">Acara</td>
 				</tr>

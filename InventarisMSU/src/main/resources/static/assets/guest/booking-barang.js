@@ -267,7 +267,7 @@ async function renderBookingList(container, itemName, y, m, day) {
                 const dur = (new Date(endFull) - new Date(startFull)) / 36e5;
                 if (dur >= 20) isFullDay = true;
                 const fullStr = b.description.match(/\[Waktu:\s*([^\]]+)\]/)[1];
-                timeLabel = fullStr.replace(/\d{4}-\d{2}-\d{2}\s/g, '');
+                timeLabel = fullStr.replaceAll(/\d{4}-\d{2}-\d{2}\s/g, '');
             } else {
                 const sm = b.description.match(/\[Sesi:\s*([^\]]+)\]/);
                 if (sm) {

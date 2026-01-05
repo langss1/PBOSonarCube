@@ -128,9 +128,7 @@
   <nav class="navbar navbar-expand-lg fixed-top shadow-soft bg-white">
     <div class="container">
       <a class="navbar-brand" th:href="@{/pengelola/beranda}">
-      <a class="navbar-brand" th:href="@{/pengelola/beranda}">
         <img th:src="@{/assets/guest/loogoo.png}" alt="Logo MSU" style="height: 45px" />
-      </a>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
         <span class="navbar-toggler-icon"></span>
@@ -154,11 +152,9 @@
         <!-- USER DROPDOWN + LOGOUT (SAMA FORMATNYA) -->
         <div class="ms-3 dropdown">
           <button class="btn btn-outline-secondary d-flex align-items-center rounded-pill px-3 py-1 border-0"
-            type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-          <button class="btn btn-outline-secondary d-flex align-items-center rounded-pill px-3 py-1 border-0"
-            type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-            <img id="userAvatar" th:src="@{/assets/guest/loogoo.png}" alt="User" class="rounded-circle me-2"
-              width="32" height="32" />
+            type="button" id="userMenuButtonTambah" data-bs-toggle="dropdown" aria-expanded="false">
+            <img id="userAvatar" th:src="@{/assets/guest/loogoo.png}" alt="User" class="rounded-circle me-2" width="32"
+              height="32" />
             <div class="text-start">
               <div id="userName" class="fw-semibold text-dark small">
                 Pengelola
@@ -236,7 +232,7 @@
               th:action="@{/pengelola/tambah}" enctype="multipart/form-data">
               <!-- Nama -->
               <div class="col-12">
-                <label class="form-label label-muted">Nama*</label>
+                <label class="form-label label-muted" for="inpNama">Nama*</label>
                 <input id="inpNama" name="name" type="text" class="form-control pill"
                   placeholder="Contoh: Proyektor / Ruang Tamu VIP" required />
                 <div class="invalid-feedback">
@@ -246,7 +242,7 @@
 
               <!-- Kategori -->
               <div class="col-12">
-                <label class="form-label label-muted">Kategori*</label>
+                <label class="form-label label-muted" for="btnKategori">Kategori*</label>
                 <div class="dropdown">
                   <button class="btn dropdown-toggle pill w-100 text-start" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false" id="btnKategori">
@@ -271,7 +267,7 @@
 
               <!-- Deskripsi -->
               <div class="col-12">
-                <label class="form-label label-muted">Deskripsi</label>
+                <label class="form-label label-muted" for="inpDesk">Deskripsi</label>
                 <textarea id="inpDesk" name="description" class="form-control" rows="3" style="border-radius: 18px"
                   placeholder="Spesifikasi singkat / aturan penggunaan (opsional)"></textarea>
                 <small class="help">Disarankan 15–200 karakter.</small>
@@ -279,7 +275,7 @@
 
               <!-- Status -->
               <div class="col-12 col-md-6">
-                <label class="form-label label-muted">Status</label>
+                <label class="form-label label-muted" for="inpStatus">Status</label>
                 <select id="inpStatus" name="status" class="form-select pill">
                   <option value="Tersedia" selected>
                     Tersedia
@@ -295,7 +291,7 @@
 
               <!-- Stok / Kapasitas -->
               <div class="col-12 col-md-6" id="wrapStok" style="display: none">
-                <label class="form-label label-muted">Stok*</label>
+                <label class="form-label label-muted" for="inpStok">Stok*</label>
                 <input id="inpStok" type="number" min="0" class="form-control pill" placeholder="Contoh: 10" />
                 <div class="invalid-feedback">
                   Stok wajib diisi untuk kategori Barang.
@@ -303,7 +299,7 @@
               </div>
 
               <div class="col-12 col-md-6" id="wrapKapasitas" style="display: none">
-                <label class="form-label label-muted">Kapasitas*</label>
+                <label class="form-label label-muted" for="inpKapasitas">Kapasitas*</label>
                 <div class="input-group">
                   <input id="inpKapasitas" type="number" min="1" class="form-control pill" placeholder="Contoh: 100" />
                   <span class="input-group-text pill">orang</span>

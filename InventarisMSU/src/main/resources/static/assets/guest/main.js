@@ -343,7 +343,7 @@ function initCards() {
     } else { ... }
     */
 
-    if (isNaN(max) || !card.hasAttribute('data-max')) {
+    if (Number.isNaN(max) || !card.hasAttribute('data-max')) {
       let initial = Number(sisaEl.textContent.trim() || '0');
       if (Number.isNaN(initial)) initial = 0;
 

@@ -87,7 +87,7 @@
           <div class="row g-3">
             <!-- Identitas -->
             <div class="col-md-6">
-              <label class="form-label">Penanggung jawab</label>
+              <label class="form-label" for="pjName">Penanggung jawab</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
                 <input type="text" class="form-control" id="pjName" placeholder="Nama lengkap" required />
@@ -96,7 +96,7 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">NIM/NIP</label>
+              <label class="form-label" for="idNumber">NIM/NIP</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-hash"></i></span>
                 <input type="text" class="form-control" id="idNumber" placeholder="21573xxxxx" required />
@@ -105,7 +105,7 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Email</label>
+              <label class="form-label" for="email">Email</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                 <input type="email" class="form-control" id="email" placeholder="nama@contoh.ac.id" required />
@@ -114,7 +114,7 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Program Studi / Unit</label>
+              <label class="form-label" for="studyProgram">Program Studi / Unit</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
                 <select class="form-select" id="studyProgram" required>
@@ -130,7 +130,7 @@
 
             <!-- Tanggal & Waktu & Durasi -->
             <div class="col-md-6">
-              <label class="form-label">Tanggal Peminjaman</label>
+              <label class="form-label" for="loanDate">Tanggal Peminjaman</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                 <input type="date" class="form-control" id="loanDate" required />
@@ -139,7 +139,7 @@
             </div>
 
             <div class="col-md-3">
-              <label class="form-label">Waktu Mulai</label>
+              <label class="form-label" for="startTime">Waktu Mulai</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-clock"></i></span>
                 <input type="time" class="form-control" id="startTime" required />
@@ -148,7 +148,7 @@
             </div>
 
             <div class="col-md-3">
-              <label class="form-label">Durasi</label>
+              <label class="form-label" for="duration">Durasi</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-hourglass-split"></i></span>
                 <select class="form-select" id="duration" required>
@@ -165,7 +165,7 @@
 
             <!-- Upload persyaratan -->
             <div class="col-md-12">
-              <label class="form-label">Upload Dokumen Persyaratan</label>
+              <label class="form-label" for="requirements">Upload Dokumen Persyaratan</label>
               <input class="form-control" type="file" id="requirements" accept=".pdf,.jpg,.jpeg,.png" required>
               <div class="form-text">
                 Format: PDF/JPG/PNG (maks 10 MB). Unduh & tandatangani
@@ -176,7 +176,7 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label">Keperluan (deskripsi)</label>
+              <label class="form-label" for="longPurpose">Keperluan (deskripsi)</label>
               <textarea id="longPurpose" class="form-control" rows="4" placeholder="Tuliskan detail singkat keperluan…"
                 required></textarea>
               <div class="invalid-feedback">Wajib diisi.</div>
